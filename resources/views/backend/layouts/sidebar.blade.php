@@ -39,8 +39,10 @@
                     <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
                 </a>
                 <ul class="treeview-menu">
-                    <li><a href="#">Link in level 2</a></li>
-                    <li><a href="#">Link in level 2</a></li>
+                    <li><a href="{{ route('backend.system.users') }}">用户管理</a></li>
+                    <li><a href="{{ route('backend.system.roles') }}">角色管理</a></li>
+                    <li><a href="{{ route('backend.system.actions') }}">权限与菜单管理</a></li>
+                    <li><a href="{{ route('backend.system.departments') }}">部门管理</a></li>
                 </ul>
             </li>
         </ul>

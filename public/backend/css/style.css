@@ -1,3 +1,86 @@
 .tr-pointer {
     cursor: pointer;
 }
+
+.set-actions-icons-list {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.set-actions-icons-list > thead > tr > td {
+    padding-bottom: 10px;
+    min-width: 38px;
+}
+.set-actions-icons-list > tbody > tr > td {
+    min-width: 38px;
+}
+
+.set-actions-icon-label {
+    width: 100%;
+    font-weight: normal;
+}
+
+.set-action-icon, .set-actions-icon-button {
+    width: 38px;
+    text-align: center;
+    max-width: 38px;
+}
+
+.tree-menu {
+    margin-left: 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+.department-name {
+    display: inline-block;
+    margin-left: 10px;
+    height: 32px;
+    line-height: 32px;
+}
+
+.tree-menu > li > a {
+    display: inline-block;
+    width: 100%;
+}
+
+.tree-menu > li > a:hover {
+    background-color: #eee;
+}
+
+.tree-menu > li.active > a:hover{
+    background-color: #5dade2;
+}
+
+.tree-menu > li.active {
+    background-color: #5dade2;
+}
+
+.tree-menu > li.active > a {
+    color: #ffffff;
+}
+
+.level0 {
+    margin-left: 12px;
+}
+
+.level1 {
+    margin-left: 24px;
+}
+
+.level2 {
+    margin-left: 36px;
+}
+
+.level3 {
+    margin-left: 48px;
+}
+
+.level4 {
+    margin-left: 60px;
+}
+
+.departments-submit-form > .form-group {
+    margin-right: 0;
+    margin-left: 0;
+}
