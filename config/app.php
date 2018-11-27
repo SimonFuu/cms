@@ -232,4 +232,13 @@ return [
     'backend' => [
         'prefix' => 'admin'
     ],
+
+    'modules' => [
+        'type' => [
+            'common' => 1,
+            'special' => 2,
+            'videos' => 3,
+            'links' => 4
+        ]
+    ]
 ];

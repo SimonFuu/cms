@@ -6,7 +6,7 @@
         @foreach($navs as $nav)
             <div class="nav-block">
                 {{--TODO 外链地址模块ID 为 4--}}
-                @if($nav -> type == 4)
+                @if($nav -> type == config('app.modules.type.links'))
                     <a href="{{ $nav -> code }}" target="_blank">{{ $nav -> name }}</a>
                 @else
                     <a href="{{ route('module.list', ['module' => $nav -> code]) }}">{{ $nav -> name }}</a>
