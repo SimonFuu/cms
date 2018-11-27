@@ -35,6 +35,28 @@ class UploadController extends BackendController
                         $res = json_encode(['state' => 'FAILED']);
                     }
                     break;
+                case 'upload_file':
+                    $res = $this -> saveFile($request, 'up_file', 'attachments');
+                    if ($res) {
+                        $res = json_encode([
+                            'state' => 'SUCCESS',
+                            'url' => $res,
+                        ]);
+                    } else {
+                        $res = json_encode(['state' => 'FAILED']);
+                    }
+                    break;
+                case 'upload_video':
+                    $res = $this -> saveFile($request, 'up_file', 'videos');
+                    if ($res) {
+                        $res = json_encode([
+                            'state' => 'SUCCESS',
+                            'url' => $res,
+                        ]);
+                    } else {
+                        $res = json_encode(['state' => 'FAILED']);
+                    }
+                    break;
                 default:
                     $res = '{"state": "FAILED"}';
                     break;
@@ -57,7 +79,7 @@ class UploadController extends BackendController
         if ($res) {
             return $this -> response(['url' => $res]);
         } else {
-            return $this -> response([], config('msg.common.server.error'), 500);
+            return $this -> response([], 500, config('msg.common.server.error'));
         }
     }
     private function saveFile(Request $request, $filed = '', $type = 'images', $originalExtension = false)

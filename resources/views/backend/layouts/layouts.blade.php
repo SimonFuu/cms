@@ -28,4 +28,8 @@
         @include('backend.layouts.footer')
     </div>
     @include('backend.layouts.modals')
+
+    <script>
+        var modalHasError = "{{ count($errors) }}";
+    </script>
 @endsection

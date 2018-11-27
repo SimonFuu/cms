@@ -30,7 +30,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="col-md-6" style="border: 2px red solid; padding: 10px 20px">
+                <div class="col-md-6">
                     {!! Form::open(['url' => route('backend.sections.store'), 'method' => 'post', 'class' => 'form-horizontal', 'role' => 'form']) !!}
                         <!-- class include {'form-horizontal'|'form-inline'} -->
                         <!--- Name Field --->
@@ -58,9 +58,9 @@
                                 {!! Form::label('position', '位置:', ['class' => 'control-label']) !!}
                             </div>
                             <div class="col-md-6 radio">
-                                <label><input type="radio" name="position" id="position" value="0"> 左</label>
+                                <label><input type="radio" name="position" value="0"> 左</label>
                                 &nbsp;
-                                <label><input type="radio" name="position" id="position" value="1"> 右</label>
+                                <label><input type="radio" name="position" value="1"> 右</label>
                             </div>
                         </div>
                         <input type="hidden" name="m_id" id="m_id" value="-999">
@@ -77,7 +77,7 @@
         <!-- /.box-body -->
     </div>
 
-    <div class="modal fade" id="add-sections">
+    <div class="modal fade common-form-modal" id="add-sections">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -89,32 +89,47 @@
                     <!-- class include {'form-horizontal'|'form-inline'} -->
                     <div class="modal-body">
                         <!--- M_id Field --->
-                        <div class="form-group">
+                        <div class="form-group {{ $errors -> has('modal_m_id') ? 'has-error' : '' }}">
                             <div class="col-md-2">
                                 {!! Form::label('modal_m_id', '模块:', ['class' => 'control-label']) !!}
                             </div>
                             <div class="col-md-10">
                                 {!! Form::select('modal_m_id', $modules, null, ['class' => 'form-control']) !!}
+                                @if($errors -> has('modal_m_id'))
+                                    <span class="help-block form-help-block">
+                                        <strong>{{ $errors -> first('modal_m_id') }}</strong>
+                                    </span>
+                                @endif
                             </div>
                         </div>
                         <!--- Weight Field --->
-                        <div class="form-group">
+                        <div class="form-group {{ $errors -> has('modal_weight') ? 'has-error' : '' }}">
                             <div class="col-md-2">
                                 {!! Form::label('modal_weight', '权重:', ['class' => 'control-label']) !!}
                             </div>
                             <div class="col-md-10">
                                 {!! Form::number('modal_weight', 1000, ['class' => 'form-control']) !!}
+                                @if($errors -> has('modal_weight'))
+                                    <span class="help-block form-help-block">
+                                        <strong>{{ $errors -> first('modal_weight') }}</strong>
+                                    </span>
+                                @endif
                             </div>
                         </div>
                         <!--- Weight Field --->
-                        <div class="form-group">
+                        <div class="form-group {{ $errors -> has('modal_position') ? 'has-error' : '' }}">
                             <div class="col-md-2">
                                 {!! Form::label('modal-position', '位置:', ['class' => 'control-label']) !!}
                             </div>
                             <div class="col-md-10 radio">
-                                <label><input type="radio" name="modal_position" id="modal-position" value="0" checked> 左</label>
+                                <label><input type="radio" name="modal_position" value="0" checked> 左</label>
                                 &nbsp;
-                                <label><input type="radio" name="modal_position" id="modal-position" value="1"> 右</label>
+                                <label><input type="radio" name="modal_position" value="1"> 右</label>
+                                @if($errors -> has('modal_position'))
+                                    <span class="help-block form-help-block">
+                                        <strong>{{ $errors -> first('modal_weight') }}</strong>
+                                    </span>
+                                @endif
                             </div>
                         </div>
 

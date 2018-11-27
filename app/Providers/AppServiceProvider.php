@@ -20,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
             $uriArray = explode('/', $uri);
             if(isset($uriArray[1]) && $uriArray[1] == 'admin') {
                 # 管理后台
+                $this -> backendSidebarGenerator($request);
             } else {
                 # 前端
                 $this -> frontendCommonGenerate();
@@ -40,13 +41,41 @@ class AppServiceProvider extends ServiceProvider
     private function frontendCommonGenerate()
     {
         $navs = DB::table('navigation')
-            -> select('modules.name', 'modules.code')
+            -> select('modules.name', 'modules.code', 'modules.type')
             -> leftJoin('modules', 'modules.id', '=', 'navigation.m_id')
             -> whereNull('navigation.deleted_at')
             -> orderBy('navigation.weight', 'ASC')
             -> get();
         view() -> composer('frontend.default.layouts.navs', function ($view) use ($navs) {
             $view -> with('navs', $navs);
+        });
+    }
+
+    private function backendSidebarGenerator(Request $request)
+    {
+        view() -> composer('backend.layouts.sidebar', function ($view) use ($request) {
+            $session = session('menus');
+            $menus = [];
+            foreach ($session as $item) {
+                $item['active'] = false;
+                if ($item['childrenMenus']) {
+                    foreach ($item['childrenMenus'] as $key => $child) {
+                        $item['childrenMenus'][$key]['active'] = false;
+                        if (strpos($request -> getPathInfo(), $child['menu_uri']) !== false) {
+                            $item['active'] = true;
+                            $item['childrenMenus'][$key]['active'] = true;
+                        }
+                        $menu = $item;
+                    }
+                    $menus[] = $menu;
+                } else {
+                    if (strpos($request -> getPathInfo(), $item['menu_uri']) !== false) {
+                        $item['active']= true;
+                    }
+                    $menus[] = $item;
+                }
+            }
+            $view -> with('menus' , $menus);
         });
     }
 }

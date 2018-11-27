@@ -37,19 +37,19 @@ class SectionsController extends Controller
             } else {
                 return $this -> response($sections, 200);
             }
-
         } else {
             $sections = DB::table('sections')
                 -> select('sections.id', 'sections.weight', 'sections.m_id', 'modules.name', 'modules.code', 'sections.position')
                 -> leftJoin('modules', 'modules.id', '=', 'sections.m_id')
                 -> whereNull('sections.deleted_at')
                 -> whereNull('modules.deleted_at')
-                -> orderBy('weight', 'ASC')
+                -> orderBy('sections.weight', 'ASC')
                 -> get();
             $exists_modules_id = $sections -> pluck('m_id') -> toArray();
             $db_modules = DB::table('modules')
                 -> select('name', 'id')
                 -> whereNull('deleted_at')
+                -> where('type', self::COMMON_MODULE_TYPE)
                 -> whereNotIn('id', $exists_modules_id)
                 -> get();
             $modules = [];
@@ -133,6 +133,15 @@ class SectionsController extends Controller
     public function delete(Request $request)
     {
         if ($request -> has('id')) {
+            $section = DB::table('sections') -> select('m_id')
+                -> where('id', $request -> id) -> whereNull('deleted_at')
+                -> first();
+            if (is_null($section)) {
+                return redirect(route('backend.sections')) -> with('error', '该板块不存在或已被删除');
+            }
+            if ($section -> m_id == self::TOP_MODULE_ID) {
+                return redirect(route('backend.sections')) -> with('error', '首页当前无法删除"新闻头条"板块，请联系管理员');
+            }
             DB::table('sections') -> where('id', $request -> id) -> update(['deleted_at' => date('Y-m-d H:i:s')]);
             return redirect(route('backend.sections')) -> with('success', '删除成功');
         } else {

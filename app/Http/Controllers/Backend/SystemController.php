@@ -19,7 +19,7 @@ class SystemController extends BackendController
     public function actions()
     {
         $actions = DB::table('actions')
-            -> select('id', 'name', 'des', 'menu_uri', 'sub_uris', 'weight', 'parent_id')
+            -> select('id', 'name', 'desc', 'menu_uri', 'sub_uris', 'weight', 'parent_id')
             -> whereNull('deleted_at')
             -> orderBy('weight', 'ASC')
             -> paginate(self::PER_PAGE_RECORD_COUNT);
@@ -31,7 +31,7 @@ class SystemController extends BackendController
         $action = null;
         if ($request -> has('id')) {
             $a = DB::table('actions')
-                -> select('id', 'name', 'menu_uri', 'sub_uris', 'weight', 'parent_id', 'des', 'icon')
+                -> select('id', 'name', 'menu_uri', 'sub_uris', 'weight', 'parent_id', 'desc', 'icon')
                 -> whereNull('deleted_at')
                 -> where('id', $request -> id)
                 -> first();
@@ -71,7 +71,7 @@ class SystemController extends BackendController
             'name' => 'required|max:10|unique:actions,name,'
                 . ($request -> has('id')  ? $request -> id : 'NULL') . ',id,deleted_at,NULL',
             'menu_uri' => 'required|max:255',
-            'des' => 'required|max:255',
+            'desc' => 'required|max:255',
             'sub_uris' => 'required|max:1000',
             'weight' => 'required|numeric|min:1|max:10000',
             'icon' => 'required|exists:icons,icon',
@@ -82,8 +82,8 @@ class SystemController extends BackendController
             'name.max' => '权限名称不要超过10个字符！',
             'menu_uri.required' => '请输入左侧菜单URL地址！',
             'menu_uri.max' => '长度请不要超过255！',
-            'des.required' => '请输入权限描述',
-            'des.max' => '长度不要超过255！',
+            'desc.required' => '请输入权限描述',
+            'desc.max' => '长度不要超过255！',
             'sub_uris.required' => '请输入权限对应的URL地址，一行一个！',
             'sub_uris.max' => 'URL地址总体长度不要该超过1000！',
             'weight.required' => '请输入菜单展示权重！',
@@ -186,7 +186,7 @@ class SystemController extends BackendController
     {
         if ($request -> has('id')) {
             $department = DB::table('departments')
-                -> select('id', 'name', 'weight', 'parent_id', 'des')
+                -> select('id', 'name', 'weight', 'parent_id', 'desc', 'code')
                 -> whereNull('deleted_at')
                 -> where('id', $request -> id)
                 -> first();
@@ -216,22 +216,27 @@ class SystemController extends BackendController
         $rules = [
             'name' => 'required|max:30|unique:departments,name,'
                 . ($request -> has('id') ? $request -> id : 'NULL') . ',id,deleted_at,NULL',
+            'code' => 'required|max:30|unique:departments,code,'
+                . ($request -> has('id') ? $request -> id : 'NULL') . ',id,deleted_at,NULL',
             'parent_id' => 'required'
                 . ($request ->parent_id == 0 ? '' : '|exists:departments,id,deleted_at,NULL'),
             'weight' => 'required|numeric|min:0|max:1000',
-            'des' => 'nullable|max:255'
+            'desc' => 'nullable|max:255'
         ];
         $message = [
             'name.required' => '请输入部门名称！',
             'name.max' => '部门名称不要超过30个字符！',
             'name.unique' => '该部门名称已存在，请修改！',
+            'code.required' => '请输入部门编码！',
+            'code.max' => '部门编码不要超过30个字符！',
+            'code.unique' => '该编码已经存在，请重新输入！',
             'parent_id.required' => '请选择上级部门！',
             'parent_id.exists' => '您选择的上级部门不存在，请重新选择！',
             'weight.required' => '请输入0-1000之间的数字作为部门展示权重！',
             'weight.numeric' => '请输入0-1000之间的数字作为部门展示权重！',
             'weight.min' => '请输入0-100之间的数字作为部门展示权重！',
             'weight.max' => '请输入0-100之间的数字作为部门展示权重！',
-            'des.max' => '部门描述不要超过255个字符！'
+            'desc.max' => '部门描述不要超过255个字符！'
         ];
         $this -> validate($request, $rules, $message);
         try {
@@ -244,9 +249,10 @@ class SystemController extends BackendController
                     return redirect(route('backend.system.departments')) -> with('error', '修改失败，该部门的下级部门或自己不能作为"上级部门"！');
                 } else {
                     $data = [
-                        'des' => $request -> des,
+                        'desc' => $request -> desc,
                         'parent_id' => $request -> parent_id,
                         'weight' => $request -> weight,
+                        'code' => $request -> code
                     ];
                     $department = DB::table('departments')
                         -> select('name')
@@ -265,17 +271,16 @@ class SystemController extends BackendController
                             DB::rollBack();
                             return redirect(route('backend.system.departments')) -> with('error', '修改失败：' . $e -> getMessage());
                         }
-
                     }
                 }
             } else {
                 $data = [
                     'name' => $request -> name,
-                    'des' => $request -> des,
+                    'desc' => $request -> desc,
                     'parent_id' => $request -> parent_id,
                     'weight' => $request -> weight,
+                    'code' => $request -> code
                 ];
-
                 DB::table('departments') -> insert($data);
                 return redirect(route('backend.system.departments')) -> with('success', '添加成功！');
             }
@@ -322,6 +327,7 @@ class SystemController extends BackendController
                 try {
                     DB::table('departments') -> whereIn('id', $ids) -> update(['deleted_at' => $now]);
                     DB::table('users') -> whereIn('dep_id', $ids) -> update(['dep_id' => 1]);
+                    DB::table('departments_modules') -> whereIn('dep_id', $ids) -> update(['deleted_at' => $now]);
                     DB::commit();
                     return redirect(route('backend.system.departments')) -> with('success', '部门删除成功，部门内原有用户已移至"根节点"下！');
                 } catch (\Exception $e) {
@@ -339,7 +345,7 @@ class SystemController extends BackendController
     public function roles()
     {
         $roles = DB::table('roles')
-            -> select('id', 'name', 'des')
+            -> select('id', 'name', 'desc')
             -> whereNull('deleted_at')
             -> paginate(self::PER_PAGE_RECORD_COUNT);
         return view('backend.system.roles.list', ['roles' => $roles]);
@@ -350,7 +356,7 @@ class SystemController extends BackendController
         $role = null;
         if ($request -> has('id')) {
             $roleItem = DB::table('roles')
-                -> select('roles.id', 'roles.name', 'roles.des', 'actions.id as aid')
+                -> select('roles.id', 'roles.name', 'roles.desc', 'actions.id as aid')
                 -> leftJoin('actions_roles', 'actions_roles.rid', 'roles.id')
                 -> leftJoin('actions', 'actions.id', 'actions_roles.aid')
                 -> whereNull('roles.deleted_at')
@@ -364,7 +370,7 @@ class SystemController extends BackendController
                     if ($key == 0) {
                         $role -> id = $item -> id;
                         $role -> name = $item -> name;
-                        $role -> des = $item -> des;
+                        $role -> desc = $item -> desc;
                     }
                     $role -> aid[$key] = $item -> aid;
                 }
@@ -382,15 +388,15 @@ class SystemController extends BackendController
         $rules = [
             'name' => ('required|max:30|unique:roles,name,' .
                 ($request -> has('id')  ? $request -> id : 'NULL') . ',id,deleted_at,0'),
-            'des' => 'required|max:255',
+            'desc' => 'required|max:255',
             'actions' => 'required|array'
         ];
         $message = [
             'name.required' => '请输入角色名称！',
             'name.max' => '角色名称长度不要超过30！',
             'name.unique' => '已存在同名的角色，请确认！',
-            'des.required' => '请输入角色描述！',
-            'des.max' => '角色描述长度不要超过255！',
+            'desc.required' => '请输入角色描述！',
+            'desc.max' => '角色描述长度不要超过255！',
             'actions.required' => '请选择权限！',
             'actions.array' => '权限格式不正确，请联系管理员！',
         ];
@@ -466,8 +472,8 @@ class SystemController extends BackendController
                     $query -> where('users.dep_id', $request -> department);
                 }
             })
-            -> orderBy('departments.weight', 'ASC')
-            -> orderBy('users.weight', 'ASC')
+//            -> orderBy('departments.weight', 'ASC')
+//            -> orderBy('users.weight', 'ASC')
             -> paginate(self::PER_PAGE_RECORD_COUNT);
         $departments = DB::table('departments')
             -> select('id', 'name')
@@ -551,15 +557,15 @@ class SystemController extends BackendController
         ];
         $message = [
             'password.required' => '请输入密码',
-            'password.max' => '密码长度最大为255',
-            'password.min' => '密码长度最短为6',
+            'password.max' => '密码长度最大为:max',
+            'password.min' => '密码长度最短为:min',
             'password.confirmed' => '两次输入的密码不一致，请重新输入',
             'name.required' => '请输入姓名',
-            'name.max' => '姓名长度最大为30',
+            'name.max' => '姓名长度最大为:max',
             'username.required' => '请输入用户名',
             'username.unique' => '该用户名已存在，请重新输入',
-            'username.min' => '用户名长度最低为11位',
-            'username.max' => '用户名长度最高位16位',
+            'username.min' => '用户名长度最低为:min位',
+            'username.max' => '用户名长度最高位:max位',
             'dep_id.required' => '请选择用户所属部门',
             'dep_id.exists' => '您选择的部门不存在或已被删除，请重试',
             'dep_id.gt' => '用户所属部门不能为毕节市纪委',

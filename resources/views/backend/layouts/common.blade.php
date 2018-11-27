@@ -14,11 +14,16 @@
     <link href="/plugins/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="/backend/plugins/select2/dist/css/select2.min.css" rel="stylesheet" type="text/css">
     <link href="/backend/plugins/bootstrap-fileinput-4.4.2/css/fileinput.css" rel="stylesheet" type="text/css">
+    <link href="/backend/plugins/Ionicons/css/ionicons.min.css" rel="stylesheet" type="text/css">
     <link href="/backend/css/style.css?v={{ time() }}" rel="stylesheet" type="text/css">
 </head>
 <body class="hold-transition skin-red sidebar-mini login-page">
+<div class="loading-submit">
+
+</div>
 @yield('body')
 <script language="JavaScript" src="/plugins/jquery-3.2.1.min.js"></script>
+<script language="JavaScript" src="/plugins/jquery-ui-1.12.1/jquery-ui.min.js"></script>
 <script language="JavaScript" src="/plugins/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script language="JavaScript" src="/backend/plugins/adminlte/js/adminlte.min.js"></script>
 <script language="JavaScript" src="/backend/plugins/ueditor/ueditor.config.js"></script>

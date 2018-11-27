@@ -18,7 +18,6 @@
                                 <span class="list-title">{{ $content -> title }}</span>
                             </a>
                             <span class="list-date pull-right">{{ date('Y年m月d日', strtotime($content -> created_at)) }}</span>
-
                         </li>
                     @endforeach
                 </ul>

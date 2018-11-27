@@ -28,7 +28,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="col-md-6" style="border: 2px red solid; padding: 10px 20px">
+                <div class="col-md-6">
                     {!! Form::open(['url' => route('backend.navigation.store'), 'method' => 'post', 'class' => 'form-horizontal', 'role' => 'form']) !!}
                         <!-- class include {'form-horizontal'|'form-inline'} -->
                         <!--- Name Field --->
@@ -64,7 +64,7 @@
         <!-- /.box-body -->
     </div>
 
-    <div class="modal fade" id="add-navigation">
+    <div class="modal fade common-form-modal" id="add-navigation">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -72,32 +72,44 @@
                         <span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">添加导航</h4>
                 </div>
-                {!! Form::open(['url' => route('backend.navigation.store'), 'method' => 'post', 'class' => 'form-horizontal', 'role' => 'form']) !!}
-                    <!-- class include {'form-horizontal'|'form-inline'} -->
-                    <div class="modal-body">
-                        <!--- M_id Field --->
-                        <div class="form-group">
-                            <div class="col-md-2">
-                                {!! Form::label('modal_m_id', '模块:', ['class' => 'control-label']) !!}
-                            </div>
-                            <div class="col-md-10">
-                                {!! Form::select('modal_m_id', $modules, null, ['class' => 'form-control']) !!}
-                            </div>
+            {!! Form::open(['url' => route('backend.navigation.store'), 'method' => 'post', 'class' => 'form-horizontal', 'role' => 'form']) !!}
+            <!-- class include {'form-horizontal'|'form-inline'} -->
+                <div class="modal-body">
+                    <!--- M_id Field --->
+                    <div class="form-group {{ $errors -> has('modal_m_id') ? 'has-error' : '' }}">
+                        <div class="col-md-2">
+                            {!! Form::label('modal_m_id', '模块:', ['class' => 'control-label']) !!}
                         </div>
-                        <!--- Weight Field --->
-                        <div class="form-group">
-                            <div class="col-md-2">
-                                {!! Form::label('modal_weight', '权重:', ['class' => 'control-label']) !!}
-                            </div>
-                            <div class="col-md-10">
-                                {!! Form::number('modal_weight', 1000, ['class' => 'form-control']) !!}
-                            </div>
+                        <div class="col-md-10">
+                            {!! Form::select('modal_m_id', $modules, null, ['class' => 'form-control']) !!}
+                            @if($errors -> has('modal_m_id'))
+                                <span class="help-block form-help-block">
+                                    <strong>{{ $errors -> first('modal_m_id') }}</strong>
+                                </span>
+                            @endif
                         </div>
+
                     </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary pull-left">保存</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <!--- Weight Field --->
+                    <div class="form-group {{ $errors -> has('modal_weight') ? 'has-error' : '' }}">
+                        <div class="col-md-2">
+                            {!! Form::label('modal_weight', '权重:', ['class' => 'control-label']) !!}
+                        </div>
+                        <div class="col-md-10">
+                            {!! Form::number('modal_weight', 1000, ['class' => 'form-control']) !!}
+                            @if($errors -> has('modal_weight'))
+                                <span class="help-block form-help-block">
+                                    <strong>{{ $errors -> first('modal_weight') }}</strong>
+                                </span>
+                            @endif
+                        </div>
+
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary pull-left">保存</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
                 {!! Form::close() !!}
             </div>
             <!-- /.modal-content -->

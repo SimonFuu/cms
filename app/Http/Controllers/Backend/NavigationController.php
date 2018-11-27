@@ -43,7 +43,7 @@ class NavigationController extends BackendController
                 -> leftJoin('modules', 'modules.id', '=', 'navigation.m_id')
                 -> whereNull('navigation.deleted_at')
                 -> whereNull('modules.deleted_at')
-                -> orderBy('weight', 'ASC')
+                -> orderBy('navigation.weight', 'ASC')
                 -> get();
             $exists_modules_id = $navigation -> pluck('m_id') -> toArray();
             $db_modules = DB::table('modules')

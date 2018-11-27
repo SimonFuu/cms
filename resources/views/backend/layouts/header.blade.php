@@ -116,39 +116,24 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <!-- The user image in the navbar-->
                         <!-- hidden-xs hides the username on small devices so only the image appears. -->
-                        <span class="hidden-xs">管理员</span>
+                        <span class="hidden-xs">{{ Auth::user() -> name }}</span>
                     </a>
                     <ul class="dropdown-menu">
                         <!-- The user image in the menu -->
-                        <li class="user-header">
+                        {{--<li class="user-header">--}}
 
-                            <p>
-                                管理员 - Web Developer
-                                <small>Member since Nov. 2012</small>
-                            </p>
-                        </li>
-                        <!-- Menu Body -->
-                        <li class="user-body">
-                            <div class="row">
-                                <div class="col-xs-4 text-center">
-                                    <a href="#">Followers</a>
-                                </div>
-                                <div class="col-xs-4 text-center">
-                                    <a href="#">Sales</a>
-                                </div>
-                                <div class="col-xs-4 text-center">
-                                    <a href="#">Friends</a>
-                                </div>
-                            </div>
-                            <!-- /.row -->
-                        </li>
+                            {{--<p>--}}
+                                {{--Auth - Web Developer--}}
+                                {{--<small>Member since Nov. 2012</small>--}}
+                            {{--</p>--}}
+                        {{--</li>--}}
                         <!-- Menu Footer-->
                         <li class="user-footer">
                             <div class="pull-left">
-                                <a href="#" class="btn btn-default btn-flat">Profile</a>
+                                <button  data-toggle="modal" data-target="#change-password-modal" class="btn btn-warning btn-flat change-password-btn">修改密码</button>
                             </div>
                             <div class="pull-right">
-                                <a href="#" class="btn btn-default btn-flat">Sign out</a>
+                                <a href="{{ route('backend.sign.out') }}" class="btn btn-danger btn-flat">退出登录</a>
                             </div>
                         </li>
                     </ul>

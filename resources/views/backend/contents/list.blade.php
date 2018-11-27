@@ -34,6 +34,7 @@
                     {{--<th width="150">板块</th>--}}
                     <th width="75">展示权重</th>
                     <th width="75">发布者</th>
+                    <th width="75">部门</th>
                     <th width="150">发布时间</th>
                     <th width="100">操作</th>
                 </tr>
@@ -46,6 +47,7 @@
                         {{--<td></td>--}}
                         <td>{{ $content -> weight }}</td>
                         <td>{{ $content -> name }}</td>
+                        <td>{{ $content -> dep_name }}</td>
                         <td>{{ $content -> created_at }}</td>
                         <td>
                             <a class="btn btn-xs btn-primary" href="{{ route('backend.contents.edit', ['id' => $content -> id]) }}">编辑</a>

@@ -5,7 +5,12 @@
         </div>
         @foreach($navs as $nav)
             <div class="nav-block">
-                <a href="{{ route('module.list', ['module' => $nav -> code]) }}">{{ $nav -> name }}</a>
+                {{--TODO 外链地址模块ID 为 4--}}
+                @if($nav -> type == 4)
+                    <a href="{{ $nav -> code }}" target="_blank">{{ $nav -> name }}</a>
+                @else
+                    <a href="{{ route('module.list', ['module' => $nav -> code]) }}">{{ $nav -> name }}</a>
+                @endif
             </div>
         @endforeach
     </div>

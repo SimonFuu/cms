@@ -12,12 +12,11 @@ namespace App\Http\Controllers\Backend;
 
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class BackendController extends Controller
 {
-    const PER_PAGE_RECORD_COUNT = 10;
-
     protected $searchConditions = [];
 
     public function index()
@@ -28,61 +27,61 @@ class BackendController extends Controller
     public function getRoleActionsInfo($roleId = 0)
     {
         $basePermissions = [
-            'profile',
-            'profile/store'
+            str_replace(route('backend') . '/', '', route('backend.reset.password')),
+            str_replace(route('backend') . '/', '', route('backend.upload.thumbnail')),
+            str_replace(route('backend') . '/', '', route('backend.upload.ue')),
         ];
+        $prefix = config('app.backend.prefix');
         $permissions = [];
         $m = [];
         $menus = [];
         $cMenus = [];  // 临时存放二级菜单 key为父级菜单的id
         if ($roleId == 0) {
             $rawActions = DB::table('actions')
-                -> select('id', 'name', 'des', 'menu_uri', 'icon', 'sub_uris', 'parent_id')
+                -> select('id', 'name', 'desc', 'menu_uri', 'icon', 'sub_uris', 'parent_id')
                 -> orderBy('weight', 'ASC')
                 -> whereNull('deleted_at')
                 -> get();
         } else {
-            if (is_array($roleId)) {
-                $rawActions = DB::table('actions_roles')
-                    -> select('actions.id', 'actions.name', 'actions.des',
-                        'actions.menu_uri', 'actions.icon', 'actions.sub_uris', 'actions.parent_id')
-                    -> leftJoin('actions', 'actions_roles.aid', '=', 'actions.id')
-                    -> groupBy('actions.id')
-                    -> orderBy('actions.weight', 'ASC')
-                    -> whereNull('actions.deleted_at')
-                    -> whereNull('actions_roles.deleted_at')
-                    -> whereIn('actions_roles.rid', $roleId)
-                    -> get();
-            } else {
-                $rawActions = DB::table('actions_roles')
-                    -> select('actions.id', 'actions.name', 'actions.des',
-                        'actions.menu_uri', 'actions.icon', 'actions.sub_uris', 'actions.parent_id')
-                    -> leftJoin('actions', 'actions_roles.aid', '=', 'actions.id')
-                    -> groupBy('actions.id')
-                    -> orderBy('actions.weight', 'ASC')
-                    -> whereNull('actions.deleted_at')
-                    -> whereNull('actions_roles.deleted_at')
-                    -> whereIn('actions_roles.rid', $roleId)
-                    -> get();
-            }
+            $rawActions = DB::table('actions_roles')
+                -> select('actions.id', 'actions.name', 'actions.desc',
+                    'actions.menu_uri', 'actions.icon', 'actions.sub_uris', 'actions.parent_id')
+                -> leftJoin('actions', 'actions_roles.aid', '=', 'actions.id')
+                -> groupBy('actions.id')
+                -> orderBy('actions.weight', 'ASC')
+                -> whereNull('actions.deleted_at')
+                -> whereNull('actions_roles.deleted_at')
+                -> whereIn('actions_roles.rid', $roleId)
+                -> get();
         }
-        if ($rawActions) {
+
+
+        if ($rawActions -> isNotEmpty()) {
             foreach ($basePermissions as $permission) {
-                $permissions[$permission] = 1;
+                if (strpos($permission, '/') === 0) {
+                    $permissions[$prefix . $permission] = 1;
+                } else {
+                    $permissions[$prefix . '/' . $permission] = 1;
+                }
             }
             foreach ($rawActions as $rawAction) {
                 $urls = json_decode($rawAction -> sub_uris, true);
                 # 获取权限
                 if ($urls) {
                     foreach ($urls as $url) {
-                        $permissions[$url] = 1;
+                        if (strpos($url, '/') === 0) {
+                            $permissions[$prefix . $url] = 1;
+                        } else {
+                            $permissions[$prefix. '/' . $url] = 1;
+                        }
                     }
                 }
                 if ($rawAction -> parent_id == 0) {
                     $m[] = [
                         'id' => $rawAction -> id,
                         'name' => $rawAction -> name,
-                        'menu_uri' => $rawAction -> menu_uri,
+                        'menu_uri' => (strpos($rawAction -> menu_uri, '/') === 0 ?
+                            $prefix . $rawAction -> menu_uri : $prefix . '/' .  $rawAction -> menu_uri),
                         'icon' => $rawAction -> icon,
                         'childrenMenus' => []
                     ];
@@ -90,7 +89,8 @@ class BackendController extends Controller
                     $cMenus[$rawAction -> parent_id][] = [
                         'id' => $rawAction -> id,
                         'name' => $rawAction -> name,
-                        'menu_uri' => $rawAction -> menu_uri,
+                        'menu_uri' => (strpos($rawAction -> menu_uri, '/') === 0 ?
+                            $prefix . $rawAction -> menu_uri : $prefix . '/' .  $rawAction -> menu_uri),
                         'icon' => $rawAction -> icon,
                     ];
                 }
@@ -161,5 +161,21 @@ class BackendController extends Controller
             }
         }
         return $ids;
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $rules = [
+            'old_password' => 'required',
+            'password' => 'required|min:6|max:32|confirmed'
+        ];
+        $message = [
+            'old_password.required' => '请输入原密码',
+            'password.required' => '请输入新密码',
+            'password.min' => '密码长度不要少于:min',
+            'password.max' => '密码长度不要超过:max',
+            'password.confirmed' => '两次输入的密码不一致，请重新输入',
+        ];
+        $this -> validate($request, $rules, $message);
     }
 }

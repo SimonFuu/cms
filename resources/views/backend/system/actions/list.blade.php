@@ -33,7 +33,7 @@
                         <td>{{ $action -> name }}</td>
                         <td><div class="actions-list-urls">{!! $urls !!}</div></td>
                         <td>{{ $action -> weight }}</td>
-                        <td>{{ $action -> des }}</td>
+                        <td>{{ $action -> desc }}</td>
                         <td>
                             <a class="btn btn-xs btn-primary" href="{{ route('backend.system.actions.edit', ['id' => $action -> id]) }}">编辑</a>
                             <a class="btn btn-xs btn-danger" href="{{ route('backend.system.actions.delete', ['id' => $action -> id]) }}">删除</a>

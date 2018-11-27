@@ -1,5 +1,8 @@
 body {
     background: #FDFBF8;
+    background-image: url("/images/banner/bg.png");
+    background-size:100% auto;
+    background-repeat: no-repeat;
     font-family: "SF Pro SC","SF Pro Text","SF Pro Icons","PingFang SC","Helvetica Neue","Helvetica","Arial",sans-serif;
 }
 a {
@@ -22,18 +25,15 @@ a {
 .text-black:hover {
     color: black;
 }
-.banner > .top {
-    height: 220px;
-    background-image: url("/images/banner/banner_bg.png");
-    background-size:cover;
-    background-repeat: no-repeat;
-    width: 100%;
-    line-height: 220px;
-}
 
-.page-navs {
-    position: relative;
-    top: -42px;
+.file-default-preview > img {
+    width: 100%;
+    height: auto;
+}
+.banner > .top {
+    height: 180px;
+    width: 100%;
+    line-height: 180px;
 }
 
 .div-navs {
@@ -41,19 +41,21 @@ a {
     width: 1024px;
     margin: 0 auto;
     overflow: hidden;
+    background: #B8100F;
 }
 
 .nav-block {
+    font-size: 20px;
     width: 145px;
     background: #B8100F;
-    border: 1px solid #ffffff;
+    /*border: 1px solid #ffffff;*/
     border-right: none;
     text-align: center;
     float: left;
 }
 
 .nav-block:last-child {
-    border-right: 1px solid #ffffff;
+    /*border-right: 1px solid #ffffff;*/
 }
 
 .nav-block > a {
@@ -111,12 +113,17 @@ a {
 }
 
 .main-container {
-    position:relative;
-    top: -42px;
     width: 1024px;
     margin: auto;
 }
 
+.specials {
+    margin-top: 19px;
+}
+
+.special-item {
+    margin-top: 10px;
+}
 section.main {
     background: #ffffff;
     padding: 15px 35px;
@@ -283,7 +290,7 @@ ul.none-list-style {
     margin-right: 10px;
 }
 
-.section-content-title {
+.section-content-title, span.left-section-content-title {
     color: #000;
     display: inline-block;
 }
@@ -309,8 +316,6 @@ ul.none-list-style {
 .site-navs {
     margin-top: 38px;
     background: #F6EFD9;
-    position: relative;
-    top: -42px;
 }
 
 .site-navs-container {
@@ -320,7 +325,7 @@ ul.none-list-style {
 }
 
 .site-navs-header {
-    font-size: 30px;
+    font-size: 24px;
     color: #B8100F;
 }
 .site-navs-container > hr {
@@ -336,7 +341,7 @@ ul.none-list-style {
 }
 
 .site-navs-content-header>li>a {
-    font-size: 24px;
+    font-size: 20px;
 }
 .site-navs-content-header>li.active>a, .site-navs-content-header>li.active>a:focus, .site-navs-content-header>li.active>a:hover {
     background: #B8100F;
@@ -365,6 +370,7 @@ ul.none-list-style {
 footer {
     font-size: 14px;
     margin-bottom: 30px;
+    margin-top: 30px;
 }
 
 .main-list {

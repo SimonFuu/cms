@@ -2,6 +2,9 @@
     cursor: pointer;
 }
 
+.navbar-nav>.user-menu>.dropdown-menu>li.user-header {
+    height: 50px;
+}
 .set-actions-icons-list {
     margin-left: auto;
     margin-right: auto;
@@ -83,4 +86,62 @@
 .departments-submit-form > .form-group {
     margin-right: 0;
     margin-left: 0;
+}
+
+.select-module-departments {
+    vertical-align: top;
+}
+
+.department-group {
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+}
+
+.department-group > div.checkbox {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+.department-group > hr {
+    margin-top: 10px;
+    margin-bottom: 7px;
+}
+.special-layout > .row {
+     margin-right: -5px;
+     margin-left: -5px;
+}
+
+.special-name {
+    border: 2px solid #eee;
+    padding: 10px;
+    padding-bottom: 5px;
+    border-bottom: none;
+    border-radius: 10px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.special-layout-img-container.col-xs-1,
+.special-layout-img-container.col-xs-10,
+.special-layout-img-container.col-xs-11,
+.special-layout-img-container.col-xs-12,
+.special-layout-img-container.col-xs-2,
+.special-layout-img-container.col-xs-3,
+.special-layout-img-container.col-xs-4,
+.special-layout-img-container.col-xs-5,
+.special-layout-img-container.col-xs-6,
+.special-layout-img-container.col-xs-7,
+.special-layout-img-container.col-xs-8,
+.special-layout-img-container.col-xs-9 {
+    position: relative;
+    min-height: 1px;
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+.special-layout-img-container {
+    margin-bottom: 10px;
+    cursor: pointer;
 }

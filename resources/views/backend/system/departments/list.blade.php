@@ -54,6 +54,19 @@
                                 </div>
                             </div>
 
+                            <!--- code Field --->
+                            <div class="form-group {{ $errors -> has('code') ? 'has-error' : '' }}">
+                                {!! Form::label('code', '部门代码 *：', ['class' => 'control-label col-md-4']) !!}
+                                <div class="col-md-8">
+                                    {!! Form::text('code', null, ['class' => 'form-control']) !!}
+                                    @if($errors -> has('code'))
+                                        <span class="help-block">
+                                            <strong>{{ $errors -> first('code') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+
                             <!--- weight Field --->
                             <div class="form-group {{ $errors -> has('weight') ? 'has-error' : '' }}">
                                 {!! Form::label('weight', '展示权重：', ['class' => 'control-label col-md-4']) !!}
@@ -67,14 +80,14 @@
                                 </div>
                             </div>
 
-                            <!--- des Field --->
-                            <div class="form-group {{ $errors -> has('des') ? 'has-error' : '' }}">
-                                {!! Form::label('des', '描述：', ['class' => 'control-label col-md-4']) !!}
+                            <!--- desc Field --->
+                            <div class="form-group {{ $errors -> has('desc') ? 'has-error' : '' }}">
+                                {!! Form::label('desc', '描述：', ['class' => 'control-label col-md-4']) !!}
                                 <div class="col-md-8">
-                                    {!! Form::textarea('des', null, ['class' => 'form-control', 'rows' => 5, 'placeholder' => '请输入部门描述！']) !!}
-                                    @if($errors -> has('des'))
+                                    {!! Form::textarea('desc', null, ['class' => 'form-control', 'rows' => 5, 'placeholder' => '请输入部门描述！']) !!}
+                                    @if($errors -> has('desc'))
                                         <span class="help-block">
-                                            <strong>{{ $errors -> first('des') }}</strong>
+                                            <strong>{{ $errors -> first('desc') }}</strong>
                                         </span>
                                     @endif
                                 </div>
@@ -84,7 +97,7 @@
                             <!--- Submit Field --->
                             <div class="form-group">
                                 <div class="col-md-offset-4">
-                                    <button class="btn btn-primary" type="submit">提交</button>
+                                    <button class="btn btn-primary submitBtn" disabled type="submit">提交</button>
                                 </div>
                             </div>
                         {!! Form::close() !!}

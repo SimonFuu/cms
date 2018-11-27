@@ -14,7 +14,7 @@
                     <tr>
                         <th width="300">名称</th>
                         <th width="100">权重</th>
-                        <th width="100">代码</th>
+                        <th width="100">类型</th>
                         <th width="200">创建时间</th>
                         <th width="200">操作</th>
                     </tr>
@@ -24,7 +24,7 @@
                             <td>
                                 {{ $module -> weight }}
                             </td>
-                            <td>{{ $module -> code }}</td>
+                            <td>{{ $module -> type }}</td>
                             <td>{{ $module -> created_at }}</td>
                             <td>
                                 <a href="{{ route('backend.modules.edit', ['id' => $module -> id]) }}" class="btn btn-xs btn-primary">编辑</a>

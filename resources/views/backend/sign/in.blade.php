@@ -31,6 +31,12 @@
                                 <strong>{{ session('error') }}</strong>
                             </span>
                         </div>
+                    @elseif (session('success'))
+                        <div class="form-group has-success">
+                            <span class="help-block">
+                                <strong>{{ session('success') }}</strong>
+                            </span>
+                        </div>
                     @endif
                     <div class="row">
                         <div class="col-xs-offset-8 col-xs-4">

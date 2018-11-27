@@ -16,21 +16,21 @@
                     {!! Form::text('name', is_null($role) ? null : $role -> name, ['class' => 'form-control', 'placeholder' => '请输入角色名称！']) !!}
                     @if($errors -> has('name'))
                         <span class="help-block form-help-block">
-                                    <strong>{{ $errors -> first('name') }}</strong>
-                                </span>
+                                <strong>{{ $errors -> first('name') }}</strong>
+                            </span>
                     @endif
                 </div>
             </div>
 
-            <!--- des Field --->
-            <div class="form-group {{ $errors -> has('des') ? 'has-error' : '' }}">
-                {!! Form::label('des', '描述:', ['class' => 'col-sm-2 control-label']) !!}
+            <!--- desc Field --->
+            <div class="form-group {{ $errors -> has('desc') ? 'has-error' : '' }}">
+                {!! Form::label('desc', '描述:', ['class' => 'col-sm-2 control-label']) !!}
                 <div class="col-sm-10">
-                    {!! Form::text('des', is_null($role) ? null : $role -> des, ['class' => 'form-control', 'placeholder' => '请输入角色描述！']) !!}
-                    @if($errors -> has('des'))
+                    {!! Form::text('desc', is_null($role) ? null : $role -> desc, ['class' => 'form-control', 'placeholder' => '请输入角色描述！']) !!}
+                    @if($errors -> has('desc'))
                         <span class="help-block form-help-block">
-                                    <strong>{{ $errors -> first('des') }}</strong>
-                                </span>
+                            <strong>{{ $errors -> first('desc') }}</strong>
+                        </span>
                     @endif
                 </div>
             </div>
@@ -77,8 +77,8 @@
                     </div>
                     @if($errors -> has('actions'))
                         <span class="help-block form-help-block">
-                                    <strong>{{ $errors -> first('actions') }}</strong>
-                                </span>
+                            <strong>{{ $errors -> first('actions') }}</strong>
+                        </span>
                     @endif
                 </div>
             </div>

@@ -12,72 +12,118 @@ namespace App\Http\Controllers\Backend;
 
 
 use Illuminate\Http\Request;
+use Auth;
 use Illuminate\Support\Facades\DB;
+
 
 class ContentsController extends BackendController
 {
     public function list(Request $request)
     {
         $db_modules = DB::table('modules')
-            -> select('id', 'name')
-            -> whereNull('deleted_at')
-            -> orderBy('weight', 'ASC')
+            -> select('modules.id', 'modules.name')
+            -> leftJoin('departments_modules', 'departments_modules.mid', '=', 'modules.id')
+            -> where('departments_modules.dep_id', Auth::user() -> dep_id)
+            -> whereNull('modules.deleted_at')
+            -> whereNull('departments_modules.deleted_at')
+            -> where('modules.type', '<>', self::LINKS_MODULE_TYPE)
+            -> orderBy('modules.weight', 'ASC')
             -> get();
         if ($db_modules -> isEmpty()) {
-            return redirect(route('backend.index')) -> with('error', '当前没有可用模块');
+            return redirect(route('backend.index')) -> with('error', '您当前没有可以操作的板块');
         }
         $modules = [];
         foreach ($db_modules as $module) {
             $modules[$module -> id] = $module -> name;
         }
+        $dep = DB::table('departments_modules')
+            -> select('id')
+            -> whereNull('deleted_at')
+            -> where('dep_id', Auth::user() -> dep_id)
+            -> get();
+        $dep_ids = [];
+        if ($dep -> isNotEmpty()) {
+            $dep_ids = $dep -> pluck('id') -> toArray();
+        }
         $contents = DB::table('contents')
-            -> select('contents.id', 'contents.title', 'contents.source', 'contents.weight', 'users.name', 'contents.created_at')
+            -> select('contents.id', 'contents.title', 'contents.source', 'contents.weight', 'users.name', 'contents.created_at', 'departments.name as dep_name')
             -> leftJoin('users', 'users.id', '=', 'contents.publish_by')
+            -> leftJoin('departments', 'departments.id', '=', 'contents.dep_id')
+            -> leftJoin('contents_modules', 'contents_modules.c_id', '=', 'contents.id')
             -> whereNull('contents.deleted_at')
+            -> whereNull('contents_modules.deleted_at')
             -> where(function ($query) use ($request) {
                 if ($request -> has('title') && !is_null($request -> title)) {
                     $query -> where('contents.title', 'like', '%' . $request -> title . '%');
                     $this -> searchConditions['title'] = $request -> title;
                 }
                 if ($request -> has('m_id') && !is_null($request -> m_id)) {
-                    $query -> where('contents.m_ids', 'like', '%[' . $request -> m_id . ']%');
-//                    $query -> orWhere('sec_id', $request -> m_id);
+                    $query -> where('contents.m_ids', 'like', '%"mid:' . $request -> m_id . '"%');
                     $this -> searchConditions['m_id'] = $request -> m_id;
                 }
             })
+            -> where(function ($query) use ($dep_ids) {
+                $query -> where('contents.dep_id', Auth::user() -> dep_id);
+                $query -> orWhereIn('contents_modules.m_id', $dep_ids);
+            })
             -> orderBy('contents.weight', 'ASC')
             -> orderBy('contents.created_at', 'DESC')
-            -> paginate(20);
+            -> groupBy('contents.id')
+            -> paginate(self::PER_PAGE_RECORD_COUNT);
         return view('backend.contents.list', ['modules' => $modules, 'contents' => $contents, 'condition' => $this -> searchConditions]);
     }
 
     public function form(Request $request)
     {
         $db_sections = DB::table('sections')
-            -> select('modules.name', 'modules.id')
+            -> select('modules.name', 'modules.id', 'modules.weight')
             -> leftJoin('modules', 'modules.id', '=', 'sections.m_id')
+            -> leftJoin('departments_modules', 'departments_modules.mid', '=', 'modules.id')
             -> whereNull('sections.deleted_at')
             -> whereNull('modules.deleted_at')
+            -> whereNull('departments_modules.deleted_at')
+            -> where('departments_modules.dep_id', Auth::user() -> dep_id)
             -> orderBy('sections.weight', 'ASC')
             -> get();
+
         $db_navigation = DB::table('navigation')
-            -> select('modules.name', 'modules.id')
+            -> select('modules.name', 'modules.id', 'modules.weight')
             -> leftJoin('modules', 'modules.id', '=', 'navigation.m_id')
+            -> leftJoin('departments_modules', 'departments_modules.mid', '=', 'modules.id')
             -> whereNull('navigation.deleted_at')
             -> whereNull('modules.deleted_at')
+            -> where('modules.type', '<>', self::LINKS_MODULE_TYPE)
+            -> whereNull('departments_modules.deleted_at')
+            -> where('departments_modules.dep_id', Auth::user() -> dep_id)
             -> orderBy('navigation.weight', 'ASC')
             -> get();
-
-        if ($db_sections -> isEmpty() || $db_navigation -> isEmpty()) {
-            return redirect(route('backend.index')) -> with('error', '当前没有可用模块');
+        $db_specials = DB::table('modules')
+            -> select('modules.id', 'modules.name', 'modules.weight')
+            -> leftJoin('departments_modules', 'departments_modules.mid', '=', 'modules.id')
+            -> leftJoin('modules_special', 'modules_special.mid', '=', 'modules.id')
+            -> where('modules.type', self::SPECIAL_MODULE_TYPE)
+            -> whereNull('modules_special.deleted_at')
+            -> whereNull('departments_modules.deleted_at')
+            -> whereNull('modules.deleted_at')
+            -> where('departments_modules.dep_id', Auth::user() -> dep_id)
+            -> get();
+        if ($db_specials -> isNotEmpty()) {
+            foreach ($db_specials as $special) {
+                $db_navigation -> push($special);
+            }
         }
+        $db_navigation = $db_navigation -> sortBy('weight');
         $sections = $navigation = [];
         $content = null;
-        foreach ($db_sections as $section) {
-            $sections[$section -> id] = $section -> name;
+        if ($db_sections -> isNotEmpty()) {
+            foreach ($db_sections as $section) {
+                $sections[$section -> id] = $section -> name;
+            }
         }
-        foreach ($db_navigation as $value) {
-            $navigation[$value -> id] = $value -> name;
+        if ($db_navigation -> isNotEmpty()) {
+            foreach ($db_navigation as $value) {
+                $navigation[$value -> id] = $value -> name;
+            }
         }
         if ($request -> has('id')) {
             $content = DB::table('contents')
@@ -104,10 +150,11 @@ class ContentsController extends BackendController
     {
         $rules = [
             'title' => 'required|max:255|min:1',
-            'navigation' => 'required|array',
+//            'navigation' => 'required|array',
+            'navigation' => 'array',
             'section' => 'exists:sections,m_id,deleted_at,NULL',
-            'is_cus' => 'required|boolean',
-            'is_top' => 'required|boolean',
+//            'is_cus' => 'required|boolean',
+//            'is_top' => 'required|boolean',
             'source' => 'required|max:255',
             'weight' => 'required|numeric|max:1000|min:0',
             'thumbnail' => 'required|max:255|min:5',
@@ -151,46 +198,57 @@ class ContentsController extends BackendController
             'abst' => $request -> abst,
             'content' => $request -> cont,
         ];
-        if (!is_null($request -> section)) {
+        $mIds = [];
+
+        if ($request -> has('section') && !is_null($request -> section)) {
             $data['sec_id'] = $request -> section;
+            $mIds[] = $request -> section;
         }
 
-        $nav_ids = DB::table('navigation')
-            -> select('m_id')
-            -> whereNull('deleted_at')
-            -> whereIn('m_id', $request -> navigation)
-            -> get();
-        if ($nav_ids -> isEmpty()) {
-            return redirect() -> back() -> with('error', '您选择的推送板块不存在或已被删除');
+        if ($request -> has('navigation') && !is_null($request -> navigation)) {
+            $nav_ids = DB::table('navigation')
+                -> select('m_id')
+                -> whereNull('deleted_at')
+                -> whereIn('m_id', $request -> navigation)
+                -> get();
+            if ($nav_ids -> isEmpty()) {
+                return redirect() -> back() -> with('error', '您选择的推送板块不存在或已被删除');
+            }
+            $nav_ids -> push(['m_id' => (int)$request -> section]);
+            $nav_ids = $nav_ids -> pluck('m_id') -> toArray();
+            $mIds = array_merge($mIds, $nav_ids);
         }
-        $nav_ids -> push(['m_id' => (int)$request -> section]);
-        $nav_ids = $nav_ids -> pluck('m_id') -> toArray();
 
         if ($request -> has('id')) {
             $exists = DB::table('contents')
-                -> where('id', $request -> id) -> whereNull('deleted_at') -> exists();
+                -> where('id', $request -> id)
+                -> where('dep_id', Auth::user() -> dep_id)
+                -> whereNull('deleted_at')
+                -> exists();
             if (!$exists) {
                 return redirect(route('backend.contents')) -> with('error', '该文章不存在或已被删除!');
             }
-            $module_ids = [];
-            $m_ids = '';
-            foreach ($nav_ids as $nav_id) {
-                $m_ids .= '[' . $nav_id . ']';
-                $module_ids[] = [
-                    'm_id' => $nav_id,
-                    'c_id' => $request -> id
-                ];
-            }
             DB::beginTransaction();
             try {
-                $data['m_ids'] = $m_ids;
+                if ($mIds) {
+                    $module_ids = [];
+                    $m_ids = [];
+                    foreach ($mIds as $mid) {
+                        $m_ids[] = 'mid:' . $mid;
+                        $module_ids[] = [
+                            'm_id' => $mid,
+                            'c_id' => $request -> id
+                        ];
+                    }
+                    $data['m_ids'] = json_encode($m_ids);
+                    DB::table('contents_modules')
+                        -> where('c_id', $request -> id)
+                        -> whereNull('deleted_at')
+                        -> update(['deleted_at' => date('Y-m-d H:i:s')]);
+                    DB::table('contents_modules') -> insert($module_ids);
+                }
                 DB::table('contents') -> where('id', $request -> id)
                     -> update($data);
-                DB::table('contents_modules')
-                    -> where('id', $request -> id)
-                    -> whereNull('deleted_at')
-                    -> update(['deleted_at' => date('Y-m-d H:i:s')]);
-                DB::table('contents_modules') -> insert($module_ids);
                 DB::commit();
                 return redirect(route('backend.contents')) -> with('success', '保存成功');
             } catch (\Exception $e) {
@@ -200,20 +258,22 @@ class ContentsController extends BackendController
         } else {
             DB::beginTransaction();
             try {
-                $data['publish_by'] = 1;
+                $data['publish_by'] = Auth::id();
+                $data['dep_id'] = Auth::user() -> dep_id;
                 $cid = DB::table('contents') -> insertGetId($data);
-                $module_ids = [];
-                $m_ids = '';
-                foreach ($nav_ids as $nav_id) {
-                    $m_ids .= '[' . $nav_id . ']';
-                    $module_ids[] = [
-                        'm_id' => $nav_id,
-                        'c_id' => $cid
-                    ];
+                if ($mIds) {
+                    $module_ids = [];
+                    $m_ids = [];
+                    foreach ($mIds as $mid) {
+                        $m_ids[] = 'mid:' . $mid;
+                        $module_ids[] = [
+                            'm_id' => $mid,
+                            'c_id' => $cid
+                        ];
+                    }
+                    DB::table('contents') -> update(['m_ids' => json_encode($m_ids)]);
+                    DB::table('contents_modules') -> insert($module_ids);
                 }
-
-                DB::table('contents') -> update(['m_ids' => $m_ids]);
-                DB::table('contents_modules') -> insert($module_ids);
                 DB::commit();
                 return redirect(route('backend.contents')) -> with('success', '保存成功');
             } catch (\Exception $e) {
@@ -225,6 +285,7 @@ class ContentsController extends BackendController
 
     public function delete(Request $request)
     {
+        # TODO 检查是否有权限进行删除
         if ($request -> has('id')) {
             DB::beginTransaction();
             try {

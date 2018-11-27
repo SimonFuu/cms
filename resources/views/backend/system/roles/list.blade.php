@@ -23,7 +23,7 @@
                     <tr class="actions-list-trs">
                         <td>{{ $role -> id }}</td>
                         <td>{{ $role -> name }}</td>
-                        <td>{{ $role -> des }}</td>
+                        <td>{{ $role -> desc }}</td>
                         <td>
                             <a class="btn btn-xs btn-primary" href="{{ route('backend.system.roles.edit', ['id' => $role -> id]) }}">编辑</a>
                             &nbsp;

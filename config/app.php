@@ -224,8 +224,12 @@ return [
 
     ],
 
-    'top_news' => [
-        'code' => 'xwtt',
-        'name' => '新闻头条'
+//    'top_news' => [
+//        'code' => 'xwtt',
+//        'name' => '新闻头条'
+//    ],
+
+    'backend' => [
+        'prefix' => 'admin'
     ],
 ];

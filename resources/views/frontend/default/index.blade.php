@@ -3,12 +3,12 @@
     <div class="main-container">
         <div class="columns">
             <section class="main">
-
                     <div class="main-carousel">
                         <div id="carousel-generic" class="carousel slide" data-ride="carousel">
                             <!-- Indicators -->
                             <ol class="carousel-indicators">
-                                @php($count = count($topCarouselNews))
+                                @php($topNewsCount = count($topNews))
+                                @php($count = $topNewsCount >= 5 ? 5 : $topNewsCount)
                                 @for($i = 0; $i < $count; $i ++)
                                     <li data-target="#carousel-generic" data-slide-to="{{ $i }}" class="{{ $i == 0 ? 'active' : '' }}"></li>
                                 @endfor
@@ -16,46 +16,59 @@
                             <!-- Wrapper for slides -->
                             <div class="carousel-inner" role="listbox">
                                 @php($i = 0)
-                                @foreach($topCarouselNews as $news)
+                                @for($i = 0; $i < $count; $i++)
                                     <div class="item {{ $i == 0 ? 'active' : ''}}">
-                                        <img src="{{ $news -> thumb }}" alt="">
+                                        <img src="{{ $topNews[$i] -> thumb }}" alt="">
                                         <div class="carousel-caption">
-                                            <a href="{{ route('module.detail', ['module' => config('app.top_news.code'), 'id' => $news -> id]) }}">{{ $news -> title }}</a>
+                                            <a href="{{ route('module.detail', ['module' => $topModule -> code, 'id' => $topNews[$i] -> id]) }}">{{ $topNews[$i] -> title }}</a>
                                         </div>
                                     </div>
-                                    @php($i++)
-                                @endforeach
+                                @endfor
                             </div>
                         </div>
                     </div>
                     <div class="main-content">
                         <ul class="none-list-style">
-                            @foreach($topCommonNews as $key => $news)
-                                @if($key == 0)
-                                    <li>
-                                        <h3><a class="text-black" href="{{ route('module.detail', ['module' => config('app.top_news.code'), 'id' => $news -> id]) }}">{{ $news -> title }}</a></h3>
-                                        <div class="main-top-abstract">
-                                            {{ mb_strlen($news -> abst) > 60 ? mb_substr($news -> abst, 0, 60) . '...' : $news -> abst }}
-                                            <span class="pull-right">
-                                                <a href="{{ route('module.detail', ['module' => config('app.top_news.code'), 'id' => $news -> id]) }}">[详情]</a>
-                                            </span>
-                                        </div>
-                                    </li>
-                                @else
-                                    <li>
-                                        <a class="text-black top-common-news-title" href="{{ route('module.detail', ['module' => config('app.top_news.code'), 'id' => $news -> id]) }}">
-                                            {{ $news -> title }}
-                                        </a>
-                                        <span class="pull-right">{{ date('m月d日', strtotime($news -> created_at)) }}</span>
-                                    </li>
-                                @endif
-                            @endforeach
-                        </ul>
+                            @if($topNewsCount > 5)
+                                @for($i = 5; $i < $topNewsCount; $i++)
+                                    @if($i == 5)
+                                        <li>
+                                            <h3>
+                                                <a class="text-black" href="{{ route('module.detail', ['module' => $topModule -> code, 'id' => $topNews[$i] -> id]) }}">{{ $topNews[$i] -> title }}</a>
+                                                @if(is_null($topNews[$i] -> abst))
+                                                    <span class="pull-right">
+                                                        <sub style="font-size: 14px; font-weight: normal"><a href="{{ route('module.detail', ['module' => config('app.top_news.code'), 'id' => $topNews[$i] -> id]) }}">[详情]</a></sub>
+                                                    </span>
+                                                @endif
+                                            </h3>
 
+                                            <div class="main-top-abstract">
+                                                @if(!is_null($topNews[$i] -> abst))
+                                                    {{ mb_strlen($topNews[$i] -> abst) > 60 ? mb_substr($topNews[$i] -> abst, 0, 60) . '...' : $topNews[$i] -> abst }}
+                                                    <span class="pull-right">
+                                                        <a href="{{ route('module.detail', ['module' => $topModule -> code, 'id' => $topNews[$i] -> id]) }}">[详情]</a>
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </li>
+                                    @else
+                                        <li>
+                                            <a class="text-black top-common-news-title" href="{{ route('module.detail', ['module' => config('app.top_news.code'), 'id' => $topNews[$i] -> id]) }}">
+                                                {{ $topNews[$i] -> title }}
+                                            </a>
+                                            <span class="pull-right">{{ date('m月d日', strtotime($topNews[$i] -> created_at)) }}</span>
+                                        </li>
+                                    @endif
+                                @endfor
+                            @endif
+                        </ul>
                     </div>
                 <div class="main-read-more text-right">
-                    <a href="{{ route('module.list', ['module' => config('app.top_news.code')]) }}">更多>>></a>
+                    <a href="{{ route('module.list', ['module' => $topModule -> code]) }}">更多>>></a>
                 </div>
+            </section>
+            <section class="specials row">
+                {!! $special !!}
             </section>
             <section class="section-blocks row">
                 <div class="col-md-7">
@@ -71,10 +84,12 @@
                                         @php($i = 0)
                                         @foreach($contents[$left -> id] as $content)
                                             <li>
-                                                <span>
-                                                        {{--<a href="" class="section-content-department">{{ $content -> dep }}</a>--}}
-                                                    <a href="{{ route('module.detail', ['module' => $left -> code, 'id' => $content -> id]) }}" class="left-section-content-title section-content-title">
-                                                        {{ $content -> dep }} {{ $content -> title }}
+                                                <span class="left-section-content-title">
+                                                    @if($left -> id == 2)
+                                                        <a href="{{ route('department.list', ['department' => $content -> code]) }}">{{ $content -> dep }}</a>
+                                                    @endif
+                                                    <a href="{{ route('module.detail', ['module' => $left -> code, 'id' => $content -> id]) }}" class="text-black">
+                                                        {{ $content -> title }}
                                                     </a>
                                                 </span>
                                                 <span class="pull-right">{{ date('m月d日', strtotime($content -> created_at)) }}</span>
@@ -116,31 +131,6 @@
                                             @php($i++)
                                         @endforeach
                                     @endif
-                                    {{--<li>--}}
-                                        {{--<span>--}}
-                                            {{--<a href="" class="section-content-title">"扶贫济困 已购代捐"倡议书</a>--}}
-                                        {{--</span>--}}
-                                    {{--</li>--}}
-                                    {{--<li>--}}
-                                        {{--<span>--}}
-                                            {{--<a href="" class="section-content-title">"扶贫济困 已购代捐"倡议书</a>--}}
-                                        {{--</span>--}}
-                                    {{--</li>--}}
-                                    {{--<li>--}}
-                                        {{--<span>--}}
-                                            {{--<a href="" class="section-content-title">"扶贫济困 已购代捐"倡议书</a>--}}
-                                        {{--</span>--}}
-                                    {{--</li>--}}
-                                    {{--<li>--}}
-                                        {{--<span>--}}
-                                            {{--<a href="" class="section-content-title">"扶贫济困 已购代捐"倡议书</a>--}}
-                                        {{--</span>--}}
-                                    {{--</li>--}}
-                                    {{--<li>--}}
-                                        {{--<span>--}}
-                                            {{--<a href="" class="section-content-title">"扶贫济困 已购代捐"倡议书</a>--}}
-                                        {{--</span>--}}
-                                    {{--</li>--}}
                                 </ul>
                             </div>
                         </div>
@@ -148,81 +138,44 @@
                 </div>
             </section>
         </div>
-    </div>
 
-    <section class="site-navs">
-        <div class="site-navs-container">
-            <div class="site-navs-header">
-                <img src="/images/site_nav/site_nav.png" style="height: 38px; margin-right: 10px" alt="">网址导航
-            </div>
-            <hr>
-            <div class="site-navs-content">
-                <!-- Nav tabs -->
-                <ul class="site-navs-content-header nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active">
-                        <a href="#zjw" aria-controls="zjw" role="tab" data-toggle="tab" class="text-black">中央纪委监委</a>
-                    </li>
-                    <li role="presentation">
-                        <a href="#swxsjg" aria-controls="swxsjg" role="tab" data-toggle="tab" class="text-black">省委巡视结构</a>
-                    </li>
-                    <li role="presentation">
-                        <a href="#swpcjg" aria-controls="swpcjg" role="tab" data-toggle="tab" class="text-black">省委派出机构</a>
-                    </li>
-                    <li role="presentation">
-                        <a href="#szjw" aria-controls="szjw" role="tab" data-toggle="tab" class="text-black">市州纪委</a>
-                    </li>
-                </ul>
+        <section class="site-navs">
+            <div class="site-navs-container">
+                <div class="site-navs-header">
+                    <img src="/images/site_nav/site_nav.png" style="height: 38px; margin-right: 10px" alt="">网址导航
+                </div>
+                <hr>
+                <div class="site-navs-content">
+                    <!-- Nav tabs -->
+                    <ul class="site-navs-content-header nav nav-tabs" role="tablist">
+                        @foreach($navigation as $key => $group)
+                            <li role="presentation" class="{{ $key == 0 ? 'active' : ''}}">
+                                <a href="#group-{{ $group -> id }}" aria-controls="group-{{ $group -> id }}" role="tab" data-toggle="tab" class="text-black">{{ $group -> name }}</a>
+                            </li>
+                        @endforeach
+                    </ul>
 
-                <!-- Tab panes -->
-                <div class="site-navs-content-main tab-content">
-                    <div role="tabpanel" class="tab-pane active" id="zjw">
-                        <div class="text-center">
-                            <a class="text-black" href="http://www.ccdi.gov.cn/" target="_blank">中央纪委监委</a>
-                        </div>
-                    </div>
-                    <div role="tabpanel" class="tab-pane" id="swxsjg">
-                        <div class="text-center">
-                            <a class="text-black" href="http://www.ccdi.gov.cn/" target="_blank">中央纪委监委</a>
-                        </div>
-                    </div>
-                    <div role="tabpanel" class="tab-pane" id="swpcjg">
-                        <div class="text-center">
-                            <a class="text-black" href="http://www.ccdi.gov.cn/" target="_blank">中央纪委监委</a>
-                        </div>
-                    </div>
-                    <div role="tabpanel" class="tab-pane" id="szjw">
-                        <div class="text-center">
-                            <a class="text-black" href="http://www.gysjw.gov.cn/index.html" target="_blank">贵阳市纪委监委</a>
-                        </div>
-                        <div class="text-center">
-                            <a class="text-black" href="http://jiwei.zunyi.gov.cn/" target="_blank">遵义市纪委监委</a>
-                        </div>
-                        <div class="text-center">
-                            <a class="text-black" href="http://www.trjw.gov.cn/" target="_blank">铜仁市纪委监委</a>
-                        </div>
-                        <div class="text-center">
-                            <a class="text-black" href="http://sjw.gzlps.gov.cn/" target="_blank">六盘水市纪委监委</a>
-                        </div>
-                        <div class="text-center">
-                            <a class="text-black" href="http://jcj.anshun.gov.cn/" target="_blank">安顺市纪委监委</a>
-                        </div>
-                        <div class="text-center">
-                            <a class="text-black" href="http://www.qxnlz.gov.cn/" target="_blank">黔西南纪委监委</a>
-                        </div>
-                        <div class="text-center">
-                            <a class="text-black" href="http://www.qnzjwjcj.gov.cn/" target="_blank">黔南纪委监委</a>
-                        </div>
-                        <div class="text-center">
-                            <a class="text-black" href="http://www.qdnzjw.gov.cn/" target="_blank">黔东南纪委监委</a>
-                        </div>
-                        <div class="text-center">
-                            <a class="text-black" href="http://www.gadis.gov.cn/" target="_blank">贵安新区纪委监委</a>
-                        </div>
-
+                    <!-- Tab panes -->
+                    <div class="site-navs-content-main tab-content">
+                        @foreach($navigation as $key => $group)
+                            <div role="tabpanel" class="tab-pane {{ $key == 0 ? 'active' : '' }}" id="group-{{ $group -> id }}">
+                                @foreach($group -> links as $link)
+                                    <div class="text-center">
+                                        @if($group -> id == 1)
+                                            <a class="text-black" href="{{ route('department.list', ['department' => $link -> link]) }}">{{ $link -> name }}</a>
+                                        @else
+                                            <a class="text-black" href="{{ $link -> link }}" target="_blank">{{ $link -> name }}</a>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
+
+
 
 @endsection

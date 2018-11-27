@@ -79,14 +79,14 @@
                         @endif
                     </div>
                 </div>
-                <!--- des Field --->
-                <div class="form-group {{ $errors -> has('des') ? 'has-error' : '' }}">
-                    {!! Form::label('des', '描述:', ['class' => 'col-sm-2 control-label']) !!}
+                <!--- desc Field --->
+                <div class="form-group {{ $errors -> has('desc') ? 'has-error' : '' }}">
+                    {!! Form::label('desc', '描述:', ['class' => 'col-sm-2 control-label']) !!}
                     <div class="col-sm-10">
-                        {!! Form::text('des', is_null($action) ? null : $action -> des, ['class' => 'form-control']) !!}
-                        @if($errors -> has('des'))
+                        {!! Form::text('desc', is_null($action) ? null : $action -> desc, ['class' => 'form-control']) !!}
+                        @if($errors -> has('desc'))
                             <span class="help-block form-help-block">
-                                <strong>{{ $errors -> first('des') }}</strong>
+                                <strong>{{ $errors -> first('desc') }}</strong>
                             </span>
                         @endif
                     </div>

@@ -23,9 +23,16 @@ class ModulesController extends BackendController
     public function list()
     {
         $modules = DB::table('modules')
-            -> select('id', 'name', 'desc', 'weight', 'code', 'created_at')
-            -> whereNull('deleted_at')
-            -> orderBy('weight', 'ASC')
+            -> select(
+                'modules.id',
+                'modules.name',
+                'modules.weight',
+                'module_types.name as type',
+                'modules.created_at'
+            )
+            -> leftJoin('module_types', 'module_types.id', '=', 'modules.type')
+            -> whereNull('modules.deleted_at')
+            -> orderBy('modules.weight', 'ASC')
             -> get();
         return view('backend.modules.modules', ['modules' => $modules]);
     }
@@ -37,6 +44,23 @@ class ModulesController extends BackendController
      */
     public function form(Request $request)
     {
+        $dbDepartments = DB::table('departments')
+            -> select('id', 'name', 'parent_id')
+            -> whereNull('deleted_at')
+            -> orderBy('weight', 'ASC')
+            -> get();
+        if ($dbDepartments -> isEmpty()) {
+            return redirect(route('backend.modules')) -> with('error', '请先创建部门');
+        }
+        $departments = $this -> treeView($dbDepartments, 'parent_id');
+
+        $db_types = DB::table('module_types')
+            -> select('id', 'name')
+            -> get();
+        $types = [];
+        foreach ($db_types as $t) {
+            $types[$t -> id] = $t -> name;
+        }
         if ($request -> has('id')) {
             $module = DB::table('modules')
                 -> select('*')
@@ -46,10 +70,30 @@ class ModulesController extends BackendController
             if (is_null($module)) {
                 return redirect(route('backend.modules')) -> with('error', '未查询到该板块，请重试！');
             } else {
-                return view('backend.modules.form', ['module' => $module]);
+                $auth_deps = DB::table('departments')
+                    -> select('departments.id', 'departments.name')
+                    -> leftJoin('departments_modules', 'departments_modules.dep_id', '=', 'departments.id')
+                    -> whereNull('departments_modules.deleted_at')
+                    -> whereNull('departments.deleted_at')
+                    -> where('departments_modules.mid', $request -> id)
+                    -> orderBy('departments.weight', 'ASC')
+                    -> get();
+                if ($auth_deps -> isNotEmpty()) {
+                    $module -> auth_deps = [
+                        'names' => $auth_deps -> pluck('name') -> implode(','),
+                        'ids' => $auth_deps -> pluck('id') -> toArray()
+                    ];
+
+                } else {
+                    $module -> auth_deps = [
+                        'names' => '',
+                        'ids' => []
+                    ];
+                }
+                return view('backend.modules.form', ['module' => $module,'types' => $types, 'departments' => $departments]);
             }
         } else {
-            return view('backend.modules.form');
+            return view('backend.modules.form', ['types' => $types, 'departments' => $departments]);
         }
     }
 
@@ -58,10 +102,13 @@ class ModulesController extends BackendController
         $rules = [
             'name' => 'required|max:10|min:2|unique:modules,name,'
                 . ($request -> has('id') ? $request -> id : 'NULL') . ',id,deleted_at,NULL',
-            'code' => 'required|max:10|min:2|unique:modules,code,'
+            'code' => 'required|max:255|min:2|unique:modules,code,'
                 . ($request -> has('id') ? $request -> id : 'NULL') . ',id,deleted_at,NULL',
             'desc' => 'required|max:255|min:2',
-            'weight' => 'required|numeric|max:1000|min:0'
+            'weight' => 'required|numeric|max:1000|min:0',
+            'type' => 'required|exists:module_types,id,deleted_at,NULL',
+            'thumbnail' => 'required_if:type,2|max:255',
+            'departments' => 'required|array',
         ];
         $messages = [
             'name.required' => '请输入板块名称',
@@ -78,6 +125,12 @@ class ModulesController extends BackendController
             'weight.required' => '请输入板块权重',
             'weight.max' => '板块权重不要大于:max',
             'weight.min' => '板块权重不要小于:min',
+            'type.required' => '请选择板块类型',
+            'type.exists' => '板块类型不存在',
+            'thumbnail.required_if' => '请上传专题图',
+            'thumbnail.max' => '专题图异常，请联系管理员【:max】',
+            'departments.required' => '请选择授权部门',
+            'departments.array' => '部门格式不正确'
         ];
         $this -> validate($request, $rules, $messages);
 
@@ -85,18 +138,45 @@ class ModulesController extends BackendController
             'name' => $request -> name,
             'desc' => $request -> desc,
             'code' => $request -> code,
-            'weight' => $request -> weight
+            'weight' => $request -> weight,
+            'type' => $request -> type,
+            'thumbnail' => $request -> has('thumbnail') ? $request -> thumbnail : null
         ];
+
+        $departments = DB::table('departments')
+            -> select('id')
+            -> whereIn('id', $request -> departments)
+            -> whereNull('deleted_at')
+            -> get();
+        if ($departments -> isEmpty()) {
+            return redirect(route('backend.modules')) -> with('error', '所选的部门不存在');
+        }
+        $dep_ids = $departments -> pluck('id');
+
+        DB::beginTransaction();
         try {
             if ($request -> has('id')) {
                 DB::table('modules')
                     -> where('id', $request -> id)
                     -> update($data);
+                DB::table('departments_modules') -> where('mid', $request -> id)
+                    -> update(['deleted_at' => date('Y-m-d H:i:s')]);
+                $mid = $request -> id;
             } else {
-                DB::table('modules') -> insert($data);
+                $mid = DB::table('modules') -> insertGetId($data);
             }
+            $ids = [];
+            foreach ($dep_ids as $id) {
+                $ids[] = [
+                    'mid' => $mid,
+                    'dep_id' => $id
+                ];
+            }
+            DB::table('departments_modules') -> insert($ids);
+            DB::commit();
             return redirect(route('backend.modules')) -> with('success', '保存成功！');
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect(route('backend.modules'))
                 -> with('error', sprintf('保存失败，请联系管理员。【%s】', $e -> getMessage()));
         }
@@ -112,6 +192,8 @@ class ModulesController extends BackendController
         if ($request -> has('id')) {
             DB::table('modules')
                 -> where('id', $request -> id) -> update(['deleted_at' => date('Y-m-d H:i:s')]);
+            DB::table('departments_modules') -> where('mid', $request -> id)
+                -> update(['deleted_at' => date('Y-m-d H:i:s')]);
             return redirect(route('backend.modules')) -> with('success', '删除成功！');
         } else {
             return redirect(route('backend.modules')) -> with('error', '删除失败，请提供所要删除的导航板块ID！');

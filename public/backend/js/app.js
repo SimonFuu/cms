@@ -144,6 +144,8 @@ var ue_generator = function () {
                     'cleardoc', //清空文档
                     'insertparagraphbeforetable', //"表格前插入行"
                     'simpleupload', //单图上传
+                    'insertvideo', //视频
+                    'attachment', // 附件
                     'edittable', //表格属性
                     'edittd', //单元格属性
                     'link', //超链接
@@ -187,9 +189,9 @@ var file_uploader = function () {
         thumbnailContainer.fileinput({
             maxFileCount: 1,
             language: "zh",
-            dropZoneTitle: "请选择需要上传的缩略图",
+            dropZoneTitle: "请选择需要上传的图片",
             uploadUrl: thumbnailContainer.data('url'),
-            defaultPreviewContent: postThumbnail === '' ? '' : '<img src="' + postThumbnail + '" alt="缩略图" height="240">',
+            defaultPreviewContent: thumbnail === '' ? '' : '<img src="' + thumbnail + '" alt="缩略图" style="width: 100%; height: auto;">',
             allowedFileExtensions: ["jpg", "png", "gif"],
         }).on('fileuploaded', function(event, file, previewId, index, reader) {
             var response = file.response;
@@ -426,9 +428,11 @@ var getDepartmentInfo = function (element) {
                 $('#parentDepartmentName').val(data.data.parent_name);
                 $('input[name="parent_id"]').val(data.data.parent_id);
                 $('#weight').val(data.data.weight);
-                $('#des').val(data.data.des);
+                $('#desc').val(data.data.desc);
+                $('#code').val(data.data.code);
                 $('input[name="id"]').val(data.data.id);
-                $('.selectParentDepartmentButton').prop('disabled', false)
+                $('.selectParentDepartmentButton').prop('disabled', false);
+                $('.submitBtn').prop('disabled', false)
             } else {
                 var html = '<div class="alert alert-danger alert-dismissable">';
                 html += '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
@@ -475,6 +479,240 @@ var deleteDepartment = function () {
     });
 };
 
+var linksPageHandle = function() {
+    $('.add-links-group-btn').on('click', function () {
+        $('.has-error').removeClass('has-error');
+        $('.help-block').remove();
+        $('input[name="id"]').val('');
+        $('#name').val('');
+        $('#desc').val('');
+        $('#weight').val(1000);
+    });
+    $('.edit-links-group-btn').on('click', function () {
+        $('.has-error').removeClass('has-error');
+        $('.help-block').remove();
+        $('input[name="id"]').val($(this).data('id'));
+        $('#name').val($(this).data('name'));
+        $('#desc').val($(this).data('desc'));
+        $('#weight').val($(this).data('weight'));
+    });
+
+    $('.add-link-btn').on('click', function () {
+        $('.has-error').removeClass('has-error');
+        $('.help-block').remove();
+        $('input[name="id"]').val('');
+        $('#name').val('');
+        $('#desc').val('');
+        $('#link').val('');
+        $('#weight').val(1000);
+    });
+    $('.edit-link-btn').on('click', function () {
+        $('.has-error').removeClass('has-error');
+        $('.help-block').remove();
+        $('input[name="id"]').val($(this).data('id'));
+        $('#name').val($(this).data('name'));
+        $('#desc').val($(this).data('desc'));
+        $('#link').val($(this).data('link'));
+        $('#weight').val($(this).data('weight'));
+    });
+};
+
+var modal_error_display = function() {
+    // var modal = $('.form-modal');
+    if (modalHasError > 0) {
+        var changePasswordFormModal = $('#change-password-modal');
+        var commonFormModal = $('.common-form-modal');
+        if (changePasswordFormModal.find('.has-error').length > 0) {
+            changePasswordFormModal.modal('show');
+        } else if (commonFormModal.find('.has-error').length > 0) {
+            commonFormModal.modal('show');
+        }
+    }
+};
+
+var changePasswordBtn = function() {
+    $('.change-password-btn').on('click', function () {
+        var formModal = $('#change-password-modal');
+        formModal.find('.has-error').each(function (index, element) {
+            $(element).removeClass('has-error');
+        });
+        formModal.find('.help-block').each(function (index, element) {
+            $(element).remove();
+        });
+    });
+};
+
+var modulesTypeChange = function() {
+    var select = $('select[name="type"]');
+    var label = $('label[for="code"]');
+    var thumbnailGroup = $(".thumbnail-group");
+    select.on('change', function () {
+        switch ($(this).val()) {
+            case '2':
+                thumbnailGroup.removeClass('hide');
+                label.html('板块代码:');
+                break;
+            case '3':
+                thumbnailGroup.addClass('hide');
+                label.html('板块代码:');
+                break;
+            case '4':
+                thumbnailGroup.addClass('hide');
+                label.html('外链地址:');
+                break;
+            default:
+                thumbnailGroup.addClass('hide');
+                label.html('板块代码:');
+                break;
+        }
+    });
+
+    if (select.length > 0 && select.val() === '2') {
+        thumbnailGroup.removeClass('hide');
+    }
+};
+
+var moduleDepartmentSelect = function() {
+    $('.parent-checkbox').on('click', function () {
+        if ($(this).is(':checked')) {
+            $(this).parents('.department-group').find('.department-checkbox').each(function (index, element) {
+                $(element).prop('checked', true);
+            });
+        } else {
+            $(this).parents('.department-group').find('.department-checkbox').each(function (index, element) {
+                $(element).prop('checked', false);
+            });
+        }
+    });
+
+    $('.department-checkbox').on('click', function () {
+        if ($(this).is(':checked')) {
+            // 子菜单勾选，则触发父级菜单勾选
+            $(this).parents('.department-group').find('.parent-checkbox').prop('checked', true);
+        } else {
+            // 子菜单移除勾选，判断当前子菜单勾选数量，如果为0，则移除父级菜单的勾选
+            var parent = $(this).parents('.department-group');
+            if (parent.find('.department-checkbox:checked').length === 0) {
+                parent.find('.parent-checkbox').prop('checked', false);
+            }
+        }
+    });
+    $('.module-select-deps').on('click', function () {
+        var deps = '';
+        $('input[name="departments[]"]:checked').each(function (index, element) {
+            deps += $(element).data('name') + ',';
+        });
+        deps = deps.substr(0, deps.length - 1);
+        $('textarea[name="dep"]').val(deps);
+        // $('#select-module-departments').modal('display');
+    })
+};
+
+var specialLayouts = function() {
+
+    $('.special-submit-btn').on('click', function () {
+        var data = [];
+        $('.special-image').each(function (index, element) {
+            data.push({
+                'id': $(element).data('id'),
+                'height': parseInt($(element).data('height') === 'auto' ? 0 : $(element).data('height')),
+                'width': parseInt($(element).data('width')),
+                'weight': index + 1,
+            });
+        });
+        if (data) {
+            var loading = $('.loading-submit');
+            var html = '';
+            $.ajax({
+                type: "post",
+                url: $(this).data('url'),
+                data: {'data': data},
+                beforeSend: function() {
+                    // loading.removeClass('hide');
+                    // loading.
+                    // loading.html("<img src='/images/site/load.gif' /> 正在更新");
+                },
+                success: function(res) {
+                    //alert(msg);
+                    if (res.result) {
+                        html = '<div class="callout callout-success"> <h4>操作成功</h4><p>专题布局保存成功</p></div>';
+                    } else {
+                        html = '<div class="callout callout-danger"> <h4>操作失败</h4><p>专题布局保存失败，请联系管理员【' + res.message + '】</p></div>';
+                    }
+                    $('.box').before(html);
+
+                },
+                error: function () {
+                    html = '<div class="callout callout-danger"> <h4>操作失败</h4><p>专题布局保存失败，请联系管理员【ERROR404】</p></div>';
+                    $('.box').before(html);
+
+                }
+            });
+            // loading.html("");
+            // loading.addClass('hide');
+        } else {
+            alert('保存失败，当前数据异常');
+        }
+    });
+
+    $('.sort-list').sortable({
+        opacity: 0.6,
+        revert: true,
+        cursor: 'move',
+        handle: '.special-item',
+    });
+    var specialImg = $('.special-image');
+    var widthInput = $('.special-image-width-input');
+    var heightInput = $('.special-image-height-input');
+    var imageIdInout  = $('.special-image-id');
+    // if (specialImg.length > 0) {
+    //     specialImg.each(function (index, element) {
+    //         $($(element).data('input-container')).css('height', $(element).height())
+    //     });
+    // }
+    // $('.size-width').on('change', function () {
+    //     var inputContainerDiv = $(this).parents('.images-size-input-container');
+    //     var containerDiv = $($(this).data('container-id'));
+    //     var currentColClassName = getColClassName(containerDiv[0].classList, 'col-xs-');
+    //     containerDiv.removeClass(currentColClassName);
+    //     containerDiv.addClass('col-xs-' + $(this).val());
+    //     var currentInputContainerColClassName = getColClassName(inputContainerDiv[0].classList, 'col-xs-');
+    //     inputContainerDiv.removeClass(currentInputContainerColClassName);
+    //     inputContainerDiv.addClass('col-xs-' + $(this).val());
+    // });
+    var getColClassName = function (list, compare) {
+        var count = list.length;
+        for (var i = 0; i < count; i++) {
+            if (list[i].indexOf(compare) !== -1) {
+                return list[i];
+            }
+        }
+        return false;
+    };
+
+
+    specialImg.on("dblclick", function() {  // 双击 触发修改宽度、高度操作
+        var id = $(this).data('id');
+        var height = $(this).data('height') === 'auto' ? 0 : $(this).data('height');
+        var width = $(this).data('width');
+        widthInput.val(width);
+        heightInput.val(height);
+        imageIdInout.val(id);
+        $('#set-special-module').modal('show');
+    });
+
+    $('.special-image-submit-btn').on('click', function () {
+        var height = parseInt(heightInput.val() < 0 ? 0 : heightInput.val());
+        var width = (widthInput.val() < 0 ? 0 : (widthInput.val() > 12 ? 12 : widthInput.val())).toString();
+        var image = $('.special-image-' + imageIdInout.val());
+        image.attr('height', height === 0 ? 'auto' : height);
+        image.data('height', height);
+        image.data('width', width);
+        var currentColClassName = getColClassName($(image.data('container'))[0].classList, 'col-xs-');
+        $($(image.data('container'))).removeClass(currentColClassName);
+        $($(image.data('container'))).addClass('col-xs-' + width);
+    });
+};
 
 $(document).ready(function () {
     ajax_init();
@@ -486,4 +724,10 @@ $(document).ready(function () {
     roleActionsCheckboxRelate();
     departmentsListSelect();
     deleteDepartment();
+    linksPageHandle();
+    modal_error_display();
+    changePasswordBtn();
+    modulesTypeChange();
+    moduleDepartmentSelect();
+    specialLayouts();
 });
