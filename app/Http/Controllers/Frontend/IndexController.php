@@ -60,7 +60,7 @@ class IndexController extends FrontendController
             -> where('sec_id', self::TOP_MODULE_ID)
             -> orderBy('weight', 'ASC')
             -> orderBy('created_at', 'DESC')
-            -> limit(10)
+            -> limit(11)
             -> get();
         if ($topNews -> isEmpty()) {
             $topNews = DB::table('contents')
@@ -69,7 +69,7 @@ class IndexController extends FrontendController
                 -> whereNotNull('sec_id')
                 -> orderBy('weight', 'ASC')
                 -> orderBy('created_at', 'DESC')
-                -> limit(10)
+                -> limit(11)
                 -> get();
             if ($topNews -> isEmpty()) {
                 $topNews = DB::table('contents')
@@ -77,7 +77,7 @@ class IndexController extends FrontendController
                     -> whereNull('deleted_at')
                     -> orderBy('weight', 'ASC')
                     -> orderBy('created_at', 'DESC')
-                    -> limit(10)
+                    -> limit(11)
                     -> get();
             }
         }

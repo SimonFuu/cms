@@ -217,6 +217,14 @@ section.main .row {
     margin-bottom: 10px;
 }
 
+.top-common-news-first-title {
+    width: 415px;
+    display: inline-block;
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+}
+
 .top-common-news-title {
     width: 350px;
     display: inline-block;

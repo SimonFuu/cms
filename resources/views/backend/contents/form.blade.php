@@ -124,10 +124,10 @@
 
                 <!--- Thumbnail Field --->
                 <div class="form-group {{ $errors -> has('thumbnail') ? 'has-error' : '' }}">
-                    {!! Form::label('thumbnail', '缩略图(*):', ['class' => 'col-sm-2 control-label']) !!}
+                    {!! Form::label('thumbnail', '缩略图:', ['class' => 'col-sm-2 control-label']) !!}
                     <div class="col-sm-8">
                         <input id="thumbnail-container" name="thumbnail-container" data-url="{{ route('backend.upload.thumbnail') }}" multiple type="file" accept="image/*">
-                        <input type="hidden" id="thumbnail" name="thumbnail" value="{{ is_null($content) ? '' : $content -> thumb }}">
+                        <input type="hidden" id="thumbnail" name="thumbnail" value="{{ is_null($content) ? (old('thumbnail') ? old('thumbnail') : '') : $content -> thumb }}">
                         @if($errors -> has('thumbnail'))
                             <span class="help-block form-help-block"><strong>{{ $errors -> first('thumbnail') }}</strong></span>
                         @endif

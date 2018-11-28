@@ -33,17 +33,17 @@
                                 @for($i = 5; $i < $topNewsCount; $i++)
                                     @if($i == 5)
                                         <li>
-                                            <h3>
-                                                <a class="text-black" href="{{ route('module.detail', ['module' => $topModule -> code, 'id' => $topNews[$i] -> id]) }}">{{ $topNews[$i] -> title }}</a>
-                                                @if(is_null($topNews[$i] -> abst))
+                                            <h2>
+                                                <a class="text-black top-common-news-first-title" href="{{ route('module.detail', ['module' => $topModule -> code, 'id' => $topNews[$i] -> id]) }}">{{ $topNews[$i] -> title }}</a>
+                                                @if(is_null($topNews[$i] -> abst) || $topNews[$i] -> abst == '')
                                                     <span class="pull-right">
-                                                        <sub style="font-size: 14px; font-weight: normal"><a href="{{ route('module.detail', ['module' => config('app.top_news.code'), 'id' => $topNews[$i] -> id]) }}">[详情]</a></sub>
+                                                        <sub style="font-size: 14px; font-weight: normal"><a href="{{ route('module.detail', ['module' => $topModule -> code, 'id' => $topNews[$i] -> id]) }}">[详情]</a></sub>
                                                     </span>
                                                 @endif
-                                            </h3>
+                                            </h2>
 
                                             <div class="main-top-abstract">
-                                                @if(!is_null($topNews[$i] -> abst))
+                                                @if(!is_null($topNews[$i] -> abst) && $topNews[$i] -> abst != '')
                                                     {{ mb_strlen($topNews[$i] -> abst) > 60 ? mb_substr($topNews[$i] -> abst, 0, 60) . '...' : $topNews[$i] -> abst }}
                                                     <span class="pull-right">
                                                         <a href="{{ route('module.detail', ['module' => $topModule -> code, 'id' => $topNews[$i] -> id]) }}">[详情]</a>
