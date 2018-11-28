@@ -1,5 +1,7 @@
 @extends('backend.layouts.layouts')
 @section('content')
+{{--    {{ dd(old('content')) }}--}}
+
     <div class="box box-{{ is_null($content) ? 'info' : 'primary' }}">
         <div class="box-header with-border">
             <h3 class="box-title">{{ is_null($content) ? '添加' : '编辑'}}内容</h3>
@@ -144,15 +146,14 @@
                 </div>
 
                 <!--- Content Field --->
-                <div class="form-group {{ $errors -> has('content') ? 'has-error' : '' }}">
+                <div class="form-group {{ $errors -> has('cont') ? 'has-error' : '' }}">
                     <span id="ue-upload-url" data-url="{{ route('backend.upload.ue') }}" class="hide"></span>
                     <div class="col-md-12">
                         <script id="ue-container" type="text/plain"></script>
+                        @if($errors -> has('cont'))
+                            <span class="help-block form-help-block"><strong>{{ $errors -> first('title') }}</strong></span>
+                        @endif
                     </div>
-
-                    @if($errors -> has('title'))
-                        <span class="help-block form-help-block"><strong>{{ $errors -> first('title') }}</strong></span>
-                    @endif
                 </div>
             </div>
 
@@ -171,7 +172,7 @@
         {!! Form::close() !!}
     </div>
     <script>
-        var thumbnail = "{{ is_null($content) ? '' : $content -> thumb }}";
-        var initContent = '{!! is_null($content) ? (old('content') ? old('content') : '') : $content -> content !!}'
+        var thumbnail = "{{ is_null($content) ? (old('thumbnail') ? old('thumbnail') : '') : $content -> thumb }}";
+        var initContent = '{!! is_null($content) ? (old('cont') ? old('cont') : '') : $content -> content !!}'
     </script>
 @endsection
