@@ -100,7 +100,7 @@ class ModulesController extends BackendController
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'required|max:10|min:2|unique:modules,name,'
+            'name' => 'required|max:15|min:2|unique:modules,name,'
                 . ($request -> has('id') ? $request -> id : 'NULL') . ',id,deleted_at,NULL',
             'code' => 'required|max:255|min:2|unique:modules,code,'
                 . ($request -> has('id') ? $request -> id : 'NULL') . ',id,deleted_at,NULL',

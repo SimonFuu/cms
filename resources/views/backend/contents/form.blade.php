@@ -172,6 +172,6 @@
     </div>
     <script>
         var thumbnail = "{{ is_null($content) ? '' : $content -> thumb }}";
-        var initContent = '{!! is_null($content) ? '' : $content -> content !!}'
+        var initContent = '{!! is_null($content) ? (old('content') ? old('content') : '') : $content -> content !!}'
     </script>
 @endsection

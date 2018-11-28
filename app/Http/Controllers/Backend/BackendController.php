@@ -12,6 +12,8 @@ namespace App\Http\Controllers\Backend;
 
 
 use App\Http\Controllers\Controller;
+use Illuminate\Hashing\BcryptHasher;
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -177,5 +179,26 @@ class BackendController extends Controller
             'password.confirmed' => '两次输入的密码不一致，请重新输入',
         ];
         $this -> validate($request, $rules, $message);
+
+        $hasher = new BcryptHasher();
+        $user = DB::table('users')
+            -> select('password')
+            -> whereNull('deleted_at')
+            -> where('id', Auth::id())
+            -> first();
+        if (is_null($user)) {
+            Auth::guard()->logout();
+            $request->session()->invalidate();
+            return redirect(route('backend.sign.in')) -> with('error', '密码修改失败，您的用户不存在或已经被删除');
+        }
+        if ($hasher -> check($request -> old_password, $user -> password)) {
+            DB::table('users')
+                -> where('id', Auth::id())
+                -> update(['password' => bcrypt($request -> password)]);
+            return redirect() -> back() -> with('success', '密码修改成功');
+        } else {
+            return redirect() -> back() -> with('error', '密码修改失败，原密码错误！');
+        }
+
     }
 }
