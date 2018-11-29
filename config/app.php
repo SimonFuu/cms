@@ -240,5 +240,9 @@ return [
             'videos' => 3,
             'links' => 4
         ]
+    ],
+
+    'versions' => [
+        'statics' => config('app.env') == 'production' ? env('APP_STATIC_FILE_VERSION') : time()
     ]
 ];

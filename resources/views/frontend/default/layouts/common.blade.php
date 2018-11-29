@@ -9,12 +9,12 @@
     <link href="/images/site/favicon.png" title="Favicon" rel="shortcut icon">
     <link href="/plugins/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="/plugins/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href="/css/style.css?v={{ time() }}" rel="stylesheet" type="text/css">
+    <link href="/css/style.css?v={{ config('app.versions.statics')}}" rel="stylesheet" type="text/css">
 </head>
 <body>
 @yield('body')
 <script language="JavaScript" src="/plugins/jquery-3.2.1.min.js"></script>
 <script language="JavaScript" src="/plugins/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-<script language="JavaScript" src="/js/app.js?v={{ time() }}"></script>
+<script language="JavaScript" src="/js/app.js?v={{ config('app.versions.statics') }}"></script>
 </body>
 </html>
