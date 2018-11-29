@@ -243,6 +243,6 @@ return [
     ],
 
     'versions' => [
-        'statics' => config('app.env') == 'production' ? env('APP_STATIC_FILE_VERSION') : time()
+        'statics' => env('APP_ENV', 'local') == 'production' ? env('APP_STATIC_FILE_VERSION') : time()
     ]
 ];
