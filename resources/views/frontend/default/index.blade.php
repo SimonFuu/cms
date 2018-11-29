@@ -67,9 +67,11 @@
                     <a href="{{ route('module.list', ['module' => $topModule -> code]) }}">更多>>></a>
                 </div>
             </section>
-            <section class="specials row">
-                {!! $special !!}
-            </section>
+            @if($special)
+                <section class="specials row">
+                    {!! $special !!}
+                </section>
+            @endif
             <section class="section-blocks row">
                 <div class="col-md-7">
                     @foreach($sections[0] as $left)
