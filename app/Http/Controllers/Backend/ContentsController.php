@@ -271,7 +271,7 @@ class ContentsController extends BackendController
                             'c_id' => $cid
                         ];
                     }
-                    DB::table('contents') -> update(['m_ids' => json_encode($m_ids)]);
+                    DB::table('contents') -> where('id', $cid) -> update(['m_ids' => json_encode($m_ids)]);
                     DB::table('contents_modules') -> insert($module_ids);
                 }
                 DB::commit();

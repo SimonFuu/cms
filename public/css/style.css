@@ -100,7 +100,8 @@ a {
 
 .search-form form input {
     height: 25px;
-    border: 1px #B8100F solid
+    border: 1px #B8100F solid;
+    line-height: 20px;
 }
 
 .search-form form button {
