@@ -350,8 +350,11 @@ ul.none-list-style {
 }
 
 .site-navs-content-header>li>a {
-    font-size: 20px;
+    font-size: 18px;
+    padding: 5px 10px;
 }
+
+
 .site-navs-content-header>li.active>a, .site-navs-content-header>li.active>a:focus, .site-navs-content-header>li.active>a:hover {
     background: #B8100F;
     border:none;
