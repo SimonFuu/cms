@@ -4,7 +4,7 @@
         <div class="box-header">
             <h3 class="box-title">专题管理</h3>
             <div class="box-tools">
-                <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#set-layout-position" href=""><b>展示位置</b></button>
+                {{--<button class="btn btn-sm btn-success" data-toggle="modal" data-target="#set-layout-position" href=""><b>展示位置</b></button>--}}
                 <button class="btn btn-sm btn-info" {{ empty($special) ? 'disabled' : '' }} data-toggle="modal" data-target="#add-special"><b>添加</b></button>
                 <a class="btn btn-sm btn-warning" href="{{ route('backend.special.layouts') }}"><b>设置布局</b></a>
             </div>

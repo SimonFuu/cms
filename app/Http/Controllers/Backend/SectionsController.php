@@ -46,6 +46,7 @@ class SectionsController extends Controller
                 -> orderBy('sections.weight', 'ASC')
                 -> get();
             $exists_modules_id = $sections -> pluck('m_id') -> toArray();
+            $sections = $sections -> groupBy('position');
             $db_modules = DB::table('modules')
                 -> select('name', 'id')
                 -> whereNull('deleted_at')
