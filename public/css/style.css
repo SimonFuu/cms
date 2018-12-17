@@ -34,8 +34,12 @@ a {
     height: 180px;
     width: 100%;
     line-height: 180px;
+    padding-top: 20px;
 }
 
+.banner > .top > img {
+    height: 150px;
+}
 .div-navs {
     line-height: 41px;
     width: 1024px;
