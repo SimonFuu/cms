@@ -8,4 +8,7 @@
     <div>
         联系电话：0857 - 8339393
     </div>
+    <div>
+        <a href="{{ route('backend.sign.in') }}" target="_blank">管理登录</a>
+    </div>
 </footer>

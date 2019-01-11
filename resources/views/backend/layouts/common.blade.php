@@ -17,7 +17,7 @@
     <link href="/backend/plugins/Ionicons/css/ionicons.min.css" rel="stylesheet" type="text/css">
     <link href="/backend/css/style.css?v={{ config('app.versions.statics') }}" rel="stylesheet" type="text/css">
 </head>
-<body class="hold-transition skin-red sidebar-mini login-page">
+<body class="hold-transition skin-red sidebar-mini">
 <div class="loading-submit">
 
 </div>

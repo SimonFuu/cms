@@ -93,7 +93,7 @@ var ue_generator = function () {
             serverUrl: $('#ue-upload-url').data('url'),
             initialContent: initContent,
             initialFrameHeight: 700,
-            zIndex:0,
+            zIndex:9999,
             toolbars: [
                 [
                     'source', //源代码

@@ -37,6 +37,7 @@ class IndexController extends FrontendController
             $contents[$mid] = DB::table('contents')
                 -> select(
                     'contents.id',
+                    'contents_modules.is_new',
                     'contents.title',
                     'contents.created_at',
                     'departments.name as dep',
@@ -55,31 +56,25 @@ class IndexController extends FrontendController
         }
         $sections = $db_sections -> groupBy('position');
         $topNews = DB::table('contents')
-            -> select('id', 'title', 'abst', 'thumb', 'created_at')
-            -> whereNull('deleted_at')
-            -> where('sec_id', self::TOP_MODULE_ID)
-            -> orderBy('weight', 'ASC')
-            -> orderBy('created_at', 'DESC')
+            -> select('contents.id', 'contents.title', 'contents.abst', 'contents.thumb', 'contents.created_at', 'contents_modules.is_new')
+            -> leftJoin('contents_modules', 'contents_modules.c_id', '=', 'contents.id')
+            -> whereNull('contents_modules.deleted_at')
+            -> whereNull('contents.deleted_at')
+            -> where('contents_modules.m_id', self::TOP_MODULE_ID)
+            -> orderBy('contents.weight', 'ASC')
+            -> orderBy('contents.created_at', 'DESC')
             -> limit(11)
             -> get();
         if ($topNews -> isEmpty()) {
             $topNews = DB::table('contents')
-                -> select('id', 'title', 'abst', 'thumb', 'created_at')
-                -> whereNull('deleted_at')
-                -> whereNotNull('sec_id')
+                -> select('contents.id', 'contents.title', 'contents.abst', 'contents.thumb', 'contents.created_at', 'contents_modules.is_new')
+                -> leftJoin('contents_modules', 'contents_modules.c_id', '=', 'contents.id')
+                -> whereNull('contents_modules.deleted_at')
+                -> whereNull('contents.deleted_at')
                 -> orderBy('weight', 'ASC')
                 -> orderBy('created_at', 'DESC')
                 -> limit(11)
                 -> get();
-            if ($topNews -> isEmpty()) {
-                $topNews = DB::table('contents')
-                    -> select('id', 'title', 'abst', 'thumb', 'created_at')
-                    -> whereNull('deleted_at')
-                    -> orderBy('weight', 'ASC')
-                    -> orderBy('created_at', 'DESC')
-                    -> limit(11)
-                    -> get();
-            }
         }
         $navigation = $this -> navigationGenerator();
         $special = $this -> getSpecialLayouts();
@@ -157,10 +152,15 @@ class IndexController extends FrontendController
     {
         if ($request -> has('word')) {
             $contents = DB::table('contents')
-                -> select('contents.id', 'contents.title', 'contents.created_at', 'modules.code', 'modules.name')
+                -> select('contents.id', 'contents.title', 'contents.created_at', 'contents_modules.is_new', 'modules.code', 'modules.name')
                 -> leftJoin('contents_modules', 'contents_modules.c_id', '=', 'contents.id')
                 -> leftJoin('modules', 'modules.id', '=', 'contents_modules.m_id')
-                -> where('title', 'like', '%' . $request -> word . '%')
+                -> where(function ($query) use ($request) {
+                    $query -> where('title', 'like', '%' . $request -> word . '%');
+                    $query -> orWhere('content', 'like', '%' . $request -> word . '%');
+                })
+
+
                 -> whereNull('contents_modules.deleted_at')
                 -> whereNull('contents.deleted_at')
                 -> whereNull('modules.deleted_at')

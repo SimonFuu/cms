@@ -29,12 +29,36 @@ class DepartmentsController extends FrontendController
             return abort(404);
         }
         $list = DB::table('contents')
-            -> select('id', 'title', 'created_at')
+            -> select('id', 'title', 'created_at', 'is_new')
             -> whereNull('deleted_at')
             -> where('dep_id', $dep -> id)
             -> orderBy('weight', 'ASC')
             -> orderBy('created_at', 'DESC')
             -> paginate(self::PER_PAGE_RECORD_COUNT);
         return view('frontend.default.departments.list', ['department' => $dep, 'contents' => $list]);
+    }
+
+    public function show($department = '', $cid = 0)
+    {
+        $dep = DB::table('departments')
+            -> select('name', 'id')
+            -> whereNull('deleted_at')
+            -> where('code', $department)
+            -> first();
+        if (is_null($dep)) {
+            abort(404);
+        }
+        $name = $dep -> name;
+        $content = DB::table('contents')
+            -> select('title', 'source', 'content', 'created_at')
+            -> whereNull('deleted_at')
+            -> where('id', $cid)
+            -> where('dep_id', $dep -> id)
+            -> first();
+        if (is_null($content)) {
+            abort(404);
+        }
+        return view('frontend.default.departments.show',
+            ['content' => $content, 'module' => $name, 'code' => $department]);
     }
 }

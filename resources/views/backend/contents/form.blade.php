@@ -1,10 +1,10 @@
 @extends('backend.layouts.layouts')
 @section('content')
-{{--    {{ dd(old('content')) }}--}}
-
     <div class="box box-{{ is_null($content) ? 'info' : 'primary' }}">
         <div class="box-header with-border">
             <h3 class="box-title">{{ is_null($content) ? '添加' : '编辑'}}内容</h3>
+            &nbsp;
+            <span class="text-red"><b>请勿上传、发布涉密内容！</b></span>
         </div>
         <!-- /.box-header -->
         <!-- form start -->
@@ -26,41 +26,61 @@
                     </div>
                 </div>
 
-                @if($navigation)
-                    <!--- navigation Field --->
-                    <div class="form-group {{ $errors -> has('navigation') ? 'has-error' : '' }}">
-                        {!! Form::label('navigation', '栏目推送', ['class' => 'col-sm-2 control-label']) !!}
-                        @php
-                            $default = is_null($content) ? [] : $content -> nav_ids;
-                        @endphp
-                        <div class="col-sm-8">
-                            {!! Form::select('navigation[]', $navigation,null, [
-                                'class' => 'form-control select2',
-                                'multiple'=> 'multiple',
-                                'data-placeholder'=> '请选择推送栏目',
-                                'style' => 'width:100%',
-                                'placeholder' => '请选择推送栏目',
-                                'data-default' => json_encode($default),
-                            ]) !!}
-                            @if($errors -> has('navigation'))
-                                <span class="help-block form-help-block"><strong>{{ $errors -> first('navigation') }}</strong></span>
-                            @endif
-                        </div>
+                <!--- navigation Field --->
+                <div class="form-group {{ $errors -> has('module') ? 'has-error' : '' }}">
+                    {!! Form::label('module', '推送板块(*)', ['class' => 'col-sm-2 control-label']) !!}
+                    @php
+                        $default = is_null($content) ? [] : $content -> nav_ids;
+                    @endphp
+                    <div class="col-sm-8">
+                        {!! Form::select('module[]', $modules,null, [
+                            'class' => 'form-control select2',
+                            'multiple'=> 'multiple',
+                            'data-placeholder'=> '请选择要推送的板块',
+                            'style' => 'width:100%',
+                            'placeholder' => '请选择要推送的板块',
+                            'data-default' => json_encode($default),
+                        ]) !!}
+                        @if($errors -> has('module'))
+                            <span class="help-block form-help-block"><strong>{{ $errors -> first('module') }}</strong></span>
+                        @endif
                     </div>
-                @endif
+                </div>
+                {{--@if($navigation)--}}
+                    {{--<!--- navigation Field --->--}}
+                    {{--<div class="form-group {{ $errors -> has('navigation') ? 'has-error' : '' }}">--}}
+                        {{--{!! Form::label('navigation', '导航栏目推送', ['class' => 'col-sm-2 control-label']) !!}--}}
+                        {{--@php--}}
+                            {{--$default = is_null($content) ? [] : $content -> nav_ids;--}}
+                        {{--@endphp--}}
+                        {{--<div class="col-sm-8">--}}
+                            {{--{!! Form::select('navigation[]', $navigation,null, [--}}
+                                {{--'class' => 'form-control select2',--}}
+                                {{--'multiple'=> 'multiple',--}}
+                                {{--'data-placeholder'=> '请选择推送导航栏目',--}}
+                                {{--'style' => 'width:100%',--}}
+                                {{--'placeholder' => '请选择推送导航栏目',--}}
+                                {{--'data-default' => json_encode($default),--}}
+                            {{--]) !!}--}}
+                            {{--@if($errors -> has('navigation'))--}}
+                                {{--<span class="help-block form-help-block"><strong>{{ $errors -> first('navigation') }}</strong></span>--}}
+                            {{--@endif--}}
+                        {{--</div>--}}
+                    {{--</div>--}}
+                {{--@endif--}}
 
-                @if($sections)
-                    <!--- Section Field --->
-                    <div class="form-group {{ $errors -> has('section') ? 'has-error' : '' }}">
-                        {!! Form::label('section', '首页推送板块:', ['class' => 'col-sm-2 control-label']) !!}
-                        <div class="col-sm-8">
-                            {!! Form::select('section', $sections, is_null($content) ? null : $content -> sec_id, ['class' => 'form-control', 'placeholder' => '请选择首页推送板块']) !!}
-                            @if($errors -> has('section'))
-                                <span class="help-block form-help-block"><strong>{{ $errors -> first('section') }}</strong></span>
-                            @endif
-                        </div>
-                    </div>
-                @endif
+                {{--@if($sections)--}}
+                    {{--<!--- Section Field --->--}}
+                    {{--<div class="form-group {{ $errors -> has('section') ? 'has-error' : '' }}">--}}
+                        {{--{!! Form::label('section', '首页板块推送:', ['class' => 'col-sm-2 control-label']) !!}--}}
+                        {{--<div class="col-sm-8">--}}
+                            {{--{!! Form::select('section', $sections, is_null($content) ? null : $content -> sec_id, ['class' => 'form-control', 'placeholder' => '请选择首页板块']) !!}--}}
+                            {{--@if($errors -> has('section'))--}}
+                                {{--<span class="help-block form-help-block"><strong>{{ $errors -> first('section') }}</strong></span>--}}
+                            {{--@endif--}}
+                        {{--</div>--}}
+                    {{--</div>--}}
+                {{--@endif--}}
 
                 <!--- Source Field --->
                 <div class="form-group {{ $errors -> has('source') ? 'has-error' : '' }}">
@@ -147,12 +167,16 @@
 
                 <!--- Content Field --->
                 <div class="form-group {{ $errors -> has('cont') ? 'has-error' : '' }}">
+
+                    <div class="col-md-12">
+
+                        @if($errors -> has('cont'))
+                            <span class="help-block form-help-block"><strong>{{ $errors -> first('cont') }}</strong></span>
+                        @endif
+                    </div>
                     <span id="ue-upload-url" data-url="{{ route('backend.upload.ue') }}" class="hide"></span>
                     <div class="col-md-12">
                         <script id="ue-container" type="text/plain"></script>
-                        @if($errors -> has('cont'))
-                            <span class="help-block form-help-block"><strong>{{ $errors -> first('title') }}</strong></span>
-                        @endif
                     </div>
                 </div>
             </div>

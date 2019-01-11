@@ -30,7 +30,7 @@ class SpecialController extends FrontendController
             return abort(404);
         }
         $contents = DB::table('contents')
-            -> select('contents.id', 'contents.title', 'contents.created_at')
+            -> select('contents.id', 'contents.title', 'contents.created_at', 'contents_modules.is_new')
             -> leftJoin('contents_modules', 'contents_modules.c_id', '=', 'contents.id')
             -> whereNull('contents.deleted_at')
             -> whereNull('contents_modules.deleted_at')

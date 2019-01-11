@@ -39,8 +39,8 @@ class SignController extends BackendController
             'username.min' => '用户名长度不要少于:min',
             'username.max' => '用户名长度不要长于:max',
             'password.required' => '请输入密码',
-            'password.min' => '密码长度不要少于:in',
-            'password.max' => '密码长度不要长于:in',
+            'password.min' => '密码长度不要少于:min',
+            'password.max' => '密码长度不要长于:max',
         ];
         $this -> validate($request, $rules, $messages);
 
@@ -56,10 +56,14 @@ class SignController extends BackendController
             } else {
                 Auth::guard()->logout();
                 $request->session()->invalidate();
-                return redirect(route('backend.sign.in')) -> with('error', config('msg.common.sign.no_roles_set'));
+                return redirect(route('backend.sign.in')) -> with('error', '登录失败，该用户未分配角色');
             }
         } else {
-            return $this -> sendFailedLoginResponse($request);
+            if ($request -> has('from') && $request -> from == 'index') {
+                return redirect(route('backend.sign.in')) -> with('error', '登录失败，用户名或密码错误');
+            } else {
+                return $this -> sendFailedLoginResponse($request);
+            }
         }
     }
 

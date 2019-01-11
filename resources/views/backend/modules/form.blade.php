@@ -6,6 +6,8 @@
         <div class="box box-{{ isset($module) ? 'primary' : 'info' }}">
             <div class="box-header">
                 <h3 class="box-title">{{ isset($module) ? '编辑' : '添加' }}模块</h3>
+                &nbsp;
+                <span class="text-red"><b>请勿上传、发布涉密内容！</b></span>
             </div>
             <!-- /.box-header -->
             <div class="box-body">

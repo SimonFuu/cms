@@ -18,7 +18,9 @@
                                 @php($i = 0)
                                 @for($i = 0; $i < $count; $i++)
                                     <div class="item {{ $i == 0 ? 'active' : ''}}">
-                                        <img src="{{ $topNews[$i] -> thumb }}" alt="">
+                                        <a href="{{ route('module.detail', ['module' => $topModule -> code, 'id' => $topNews[$i] -> id]) }}">
+                                            <img src="{{ $topNews[$i] -> thumb }}" alt="">
+                                        </a>
                                         <div class="carousel-caption">
                                             <a href="{{ route('module.detail', ['module' => $topModule -> code, 'id' => $topNews[$i] -> id]) }}">{{ $topNews[$i] -> title }}</a>
                                         </div>
@@ -53,9 +55,12 @@
                                         </li>
                                     @else
                                         <li>
-                                            <a class="text-black top-common-news-title" href="{{ route('module.detail', ['module' => config('app.top_news.code'), 'id' => $topNews[$i] -> id]) }}">
+                                            <a class="text-black top-common-news-title" href="{{ route('module.detail', ['module' => $topModule -> code, 'id' => $topNews[$i] -> id]) }}">
                                                 {{ $topNews[$i] -> title }}
                                             </a>
+                                            @if($topNews[$i] -> is_new)
+                                                <img src="/images/site/new.gif" alt="New Icon" style="position:relative; top: -9px;">
+                                            @endif
                                             <span class="pull-right">{{ date('m月d日', strtotime($topNews[$i] -> created_at)) }}</span>
                                         </li>
                                     @endif
@@ -64,7 +69,7 @@
                         </ul>
                     </div>
                 <div class="main-read-more text-right">
-                    <a href="{{ route('module.list', ['module' => $topModule -> code]) }}">更多>>></a>
+                    <a class="read-more" href="{{ route('module.list', ['module' => $topModule -> code]) }}">更多>>></a>
                 </div>
             </section>
             @if($special)
@@ -78,7 +83,7 @@
                         <div class="left-section-block">
                             <div class="section-header">
                                 <span class="header-name">{{ $left -> name }}</span>
-                                <span class="header-read-more pull-right"><a href="{{ route('module.list', ['module' => $left -> code]) }}">点击查看更多>></a></span>
+                                <span class="header-read-more read-more pull-right"><a href="{{ route('module.list', ['module' => $left -> code]) }}">点击查看更多>></a></span>
                             </div>
                             <div class="section-content">
                                 <ul class="none-list-style">
@@ -88,11 +93,14 @@
                                             <li>
                                                 <span class="left-section-content-title">
                                                     @if($left -> id == 2)
-                                                        <a href="{{ route('department.list', ['department' => $content -> code]) }}">{{ $content -> dep }}</a>
+                                                        <a style="position: relative;top: -7px;" href="{{ route('department.list', ['department' => $content -> code]) }}">{{ $content -> dep }}</a>
                                                     @endif
-                                                    <a href="{{ route('module.detail', ['module' => $left -> code, 'id' => $content -> id]) }}" class="text-black">
+                                                    <a href="{{ route('module.detail', ['module' => $left -> code, 'id' => $content -> id]) }}" class="post-title text-black">
                                                         {{ $content -> title }}
                                                     </a>
+                                                    @if($content -> is_new)
+                                                        <img src="/images/site/new.gif" alt="New Icon" style="position:relative; top: -9px;">
+                                                    @endif
                                                 </span>
                                                 <span class="pull-right">{{ date('m月d日', strtotime($content -> created_at)) }}</span>
                                             </li>
@@ -112,7 +120,7 @@
                         <div class="right-section-block">
                             <div class="section-header">
                                 <span class="header-name">{{ $right -> name }}</span>
-                                <span class="header-read-more pull-right"><a href="{{ route('module.list', ['module' => $right -> code]) }}">点击查看更多>></a></span>
+                                <span class="header-read-more read-more pull-right"><a href="{{ route('module.list', ['module' => $right -> code]) }}">点击查看更多>></a></span>
                             </div>
                             <div class="section-content">
                                 <ul class="none-list-style">
@@ -125,6 +133,9 @@
                                                     <a href="{{ route('module.detail', ['module' => $right -> code, 'id' => $content -> id]) }}" class="right-section-content-title section-content-title">
                                                         {{ $content -> title }}
                                                     </a>
+                                                    @if($content -> is_new)
+                                                        <img src="/images/site/new.gif" alt="New Icon" style="position:relative; top: -9px;">
+                                                    @endif
                                                 </span>
                                             </li>
                                             @if($i == 4)

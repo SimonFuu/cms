@@ -1,12 +1,40 @@
 body {
+    font-size: 18px;
     background: #FDFBF8;
     background-image: url("/images/banner/bg.png");
     background-size:100% auto;
     background-repeat: no-repeat;
-    font-family: "SF Pro SC","SF Pro Text","SF Pro Icons","PingFang SC","Helvetica Neue","Helvetica","Arial",sans-serif;
+    font-family: "SF Pro SC","SF Pro Text","SF Pro Icons","微软雅黑", "PingFang SC","Helvetica Neue","Helvetica","Arial",sans-serif !important;
 }
 a {
     text-decoration:none !important;
+}
+
+.sign-in-form {
+    background: rgba(0, 0, 0, 0.3);
+
+}
+.form-inputs, .user-notice {
+    text-align: right;
+    width: 1200px;
+    margin: auto;
+    padding: 5px 0 7px;
+    color: #eee;
+}
+
+.user-notice > a {
+    color: #ddd;
+
+}
+
+.form-inputs > input {
+    height: 25px;
+    border: 1px #B8100F solid;
+    line-height: 20px;
+}
+
+.form-inputs > label {
+    font-weight: normal;
 }
 
 .breadcrumb {
@@ -173,13 +201,14 @@ section.main .row {
     overflow:hidden;
     white-space:nowrap;
     z-index: 999;
+    font-size: 14px; !important;
 }
 
 .carousel-inner .item {
     text-align: center;
 }
 
-.carousel-inner .item img {
+.carousel-inner .item a img {
     height: 280px;
     display: inline-block;
     margin: auto;
@@ -231,7 +260,7 @@ section.main .row {
 }
 
 .top-common-news-title {
-    width: 350px;
+    max-width: 350px;
     display: inline-block;
     text-overflow:ellipsis;
     overflow:hidden;
@@ -278,6 +307,10 @@ section.main .row {
     line-height: 50px;
 }
 
+.read-more {
+    font-size: 14px;
+}
+
 .section-content {
     margin-top: 25px;
     font-size: 20px;
@@ -312,15 +345,16 @@ ul.none-list-style {
     color: #000;
 }
 
-.left-section-content-title {
-    width: 445px;
+.left-section-content-title > .post-title {
+    display: inline-block;
+    max-width: 425px;
     text-overflow:ellipsis;
     overflow:hidden;
     white-space:nowrap;
 }
 
 .right-section-content-title {
-    width: 360px;
+    max-width: 345px;
     text-overflow:ellipsis;
     overflow:hidden;
     white-space:nowrap;
@@ -394,13 +428,13 @@ footer {
 }
 
 .main-list > ul > li {
-    padding-bottom: 6px;
-    margin-bottom: 6px;
+    margin-bottom: 15px;
     border-bottom: 1px solid #F6EFD9;
 }
+
 .list-title {
     display: inline-block;
-    width: 780px;
+    max-width: 780px;
     text-overflow:ellipsis;
     overflow:hidden;
     white-space:nowrap;

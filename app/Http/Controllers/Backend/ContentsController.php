@@ -36,15 +36,15 @@ class ContentsController extends BackendController
         foreach ($db_modules as $module) {
             $modules[$module -> id] = $module -> name;
         }
-        $dep = DB::table('departments_modules')
-            -> select('id')
-            -> whereNull('deleted_at')
-            -> where('dep_id', Auth::user() -> dep_id)
-            -> get();
-        $dep_ids = [];
-        if ($dep -> isNotEmpty()) {
-            $dep_ids = $dep -> pluck('id') -> toArray();
-        }
+//        $dep = DB::table('departments_modules')
+//            -> select('id')
+//            -> whereNull('deleted_at')
+//            -> where('dep_id', Auth::user() -> dep_id)
+//            -> get();
+////        $dep_ids = [];
+////        if ($dep -> isNotEmpty()) {
+////            $dep_ids = $dep -> pluck('id') -> toArray();
+////        }
         $contents = DB::table('contents')
             -> select('contents.id', 'contents.title', 'contents.source', 'contents.weight', 'users.name', 'contents.created_at', 'departments.name as dep_name')
             -> leftJoin('users', 'users.id', '=', 'contents.publish_by')
@@ -62,10 +62,11 @@ class ContentsController extends BackendController
                     $this -> searchConditions['m_id'] = $request -> m_id;
                 }
             })
-            -> where(function ($query) use ($dep_ids) {
-                $query -> where('contents.dep_id', Auth::user() -> dep_id);
-                $query -> orWhereIn('contents_modules.m_id', $dep_ids);
-            })
+            -> where('contents.publish_by', Auth::id())
+//            -> where(function ($query) use ($dep_ids) {
+//                $query -> where('contents.dep_id', Auth::user() -> dep_id);
+//                $query -> orWhereIn('contents_modules.m_id', $dep_ids);
+//            })
             -> orderBy('contents.weight', 'ASC')
             -> orderBy('contents.created_at', 'DESC')
             -> groupBy('contents.id')
@@ -75,75 +76,94 @@ class ContentsController extends BackendController
 
     public function form(Request $request)
     {
-        $db_sections = DB::table('sections')
-            -> select('modules.name', 'modules.id', 'modules.weight')
-            -> leftJoin('modules', 'modules.id', '=', 'sections.m_id')
-            -> leftJoin('departments_modules', 'departments_modules.mid', '=', 'modules.id')
-            -> whereNull('sections.deleted_at')
-            -> whereNull('modules.deleted_at')
-            -> whereNull('departments_modules.deleted_at')
-            -> where('departments_modules.dep_id', Auth::user() -> dep_id)
-            -> orderBy('sections.weight', 'ASC')
-            -> get();
-
-        $db_navigation = DB::table('navigation')
-            -> select('modules.name', 'modules.id', 'modules.weight')
-            -> leftJoin('modules', 'modules.id', '=', 'navigation.m_id')
-            -> leftJoin('departments_modules', 'departments_modules.mid', '=', 'modules.id')
-            -> whereNull('navigation.deleted_at')
-            -> whereNull('modules.deleted_at')
-            -> where('modules.type', '<>', self::LINKS_MODULE_TYPE)
-            -> whereNull('departments_modules.deleted_at')
-            -> where('departments_modules.dep_id', Auth::user() -> dep_id)
-            -> orderBy('navigation.weight', 'ASC')
-            -> get();
-        $db_specials = DB::table('modules')
-            -> select('modules.id', 'modules.name', 'modules.weight')
-            -> leftJoin('departments_modules', 'departments_modules.mid', '=', 'modules.id')
-            -> leftJoin('modules_special', 'modules_special.mid', '=', 'modules.id')
-            -> where('modules.type', self::SPECIAL_MODULE_TYPE)
-            -> whereNull('modules_special.deleted_at')
-            -> whereNull('departments_modules.deleted_at')
-            -> whereNull('modules.deleted_at')
-            -> where('departments_modules.dep_id', Auth::user() -> dep_id)
-            -> get();
-        if ($db_specials -> isNotEmpty()) {
-            foreach ($db_specials as $special) {
-                $db_navigation -> push($special);
-            }
-        }
-        $db_navigation = $db_navigation -> sortBy('weight');
-        $sections = $navigation = [];
         $content = null;
-        if ($db_sections -> isNotEmpty()) {
-            foreach ($db_sections as $section) {
-                $sections[$section -> id] = $section -> name;
-            }
-        }
-        if ($db_navigation -> isNotEmpty()) {
-            foreach ($db_navigation as $value) {
-                $navigation[$value -> id] = $value -> name;
+        $db_modules = DB::table('modules')
+            -> select('modules.name', 'modules.id')
+            -> leftJoin('departments_modules', 'departments_modules.mid', '=', 'modules.id')
+            -> whereNull('departments_modules.deleted_at')
+            -> whereNull('modules.deleted_at')
+            -> whereIn('modules.type', [1,2])
+            -> where('departments_modules.dep_id', Auth::user() -> dep_id)
+            -> orderBy('modules.weight', 'ASC')
+            -> get();
+//        $db_sections = DB::table('sections')
+//            -> select('modules.name', 'modules.id', 'modules.weight')
+//            -> leftJoin('modules', 'modules.id', '=', 'sections.m_id')
+//            -> leftJoin('departments_modules', 'departments_modules.mid', '=', 'modules.id')
+//            -> whereNull('sections.deleted_at')
+//            -> whereNull('modules.deleted_at')
+//            -> whereNull('departments_modules.deleted_at')
+//            -> where('departments_modules.dep_id', Auth::user() -> dep_id)
+//            -> orderBy('sections.weight', 'ASC')
+//            -> get();
+//
+//        $db_navigation = DB::table('navigation')
+//            -> select('modules.name', 'modules.id', 'modules.weight')
+//            -> leftJoin('modules', 'modules.id', '=', 'navigation.m_id')
+//            -> leftJoin('departments_modules', 'departments_modules.mid', '=', 'modules.id')
+//            -> whereNull('navigation.deleted_at')
+//            -> whereNull('modules.deleted_at')
+//            -> where('modules.type', '<>', self::LINKS_MODULE_TYPE)
+//            -> whereNull('departments_modules.deleted_at')
+//            -> where('departments_modules.dep_id', Auth::user() -> dep_id)
+//            -> orderBy('navigation.weight', 'ASC')
+//            -> get();
+//        $db_specials = DB::table('modules')
+//            -> select('modules.id', 'modules.name', 'modules.weight')
+//            -> leftJoin('departments_modules', 'departments_modules.mid', '=', 'modules.id')
+//            -> leftJoin('modules_special', 'modules_special.mid', '=', 'modules.id')
+//            -> where('modules.type', self::SPECIAL_MODULE_TYPE)
+//            -> whereNull('modules_special.deleted_at')
+//            -> whereNull('departments_modules.deleted_at')
+//            -> whereNull('modules.deleted_at')
+//            -> where('departments_modules.dep_id', Auth::user() -> dep_id)
+//            -> get();
+//        if ($db_specials -> isNotEmpty()) {
+//            foreach ($db_specials as $special) {
+//                $db_navigation -> push($special);
+//            }
+//        }
+//        $db_navigation = $db_navigation -> sortBy('weight');
+//        $sections = $navigation = [];
+//        $content = null;
+//        if ($db_sections -> isNotEmpty()) {
+//            foreach ($db_sections as $section) {
+//                $sections[$section -> id] = $section -> name;
+//            }
+//        }
+//        if ($db_navigation -> isNotEmpty()) {
+//            foreach ($db_navigation as $value) {
+//                $navigation[$value -> id] = $value -> name;
+//            }
+//        }
+        $modules = [];
+        if ($db_modules -> isNotEmpty()) {
+            foreach ($db_modules as $value) {
+                $modules[$value -> id] = $value -> name;
             }
         }
         if ($request -> has('id')) {
             $content = DB::table('contents')
                 -> select('id', 'title', 'is_top', 'is_cus', 'weight', 'content', 'thumb', 'abst', 'sec_id', 'source')
                 -> whereNull('deleted_at')
+                -> where('publish_by', Auth::id())
                 -> where('id', $request -> id)
                 -> first();
+            if (is_null($content)) {
+                return redirect(route('backend.contents')) -> with('error', '文章已删除或您没有权限修改该文章');
+            }
             $module_ids = DB::table('contents_modules')
                 -> select('m_id')
                 -> whereNull('deleted_at')
                 -> where('c_id', $request -> id)
                 -> get();
-            if (is_null($content) || $module_ids -> isEmpty()) {
-                return redirect(route('backend.contents')) -> with('error', '数据异常，请联系管理员');
-            }
             $nav_ids = $module_ids -> pluck('m_id') -> toArray();
             $content -> nav_ids = $nav_ids;
         }
+//        return view('backend.contents.form',
+//            ['content' => $content, 'navigation' => $navigation, 'sections' => $sections]);
         return view('backend.contents.form',
-            ['content' => $content, 'navigation' => $navigation, 'sections' => $sections]);
+            ['content' => $content, 'modules' => $modules]);
     }
 
     public function store(Request $request)
@@ -151,10 +171,11 @@ class ContentsController extends BackendController
         $rules = [
             'title' => 'required|max:255|min:1',
 //            'navigation' => 'required|array',
-            'navigation' => 'array',
-            'section' => 'nullable|exists:sections,m_id,deleted_at,NULL',
+//            'navigation' => 'required_without:section|array',
+//            'section' => 'required_without:navigation|nullable|exists:sections,m_id,deleted_at,NULL',
 //            'is_cus' => 'required|boolean',
 //            'is_top' => 'required|boolean',
+            'module' => 'required|array',
             'source' => 'required|max:255',
             'weight' => 'required|numeric|max:1000|min:0',
             'thumbnail' => 'required_if:section,' . self::TOP_MODULE_ID. '|max:255',
@@ -165,8 +186,11 @@ class ContentsController extends BackendController
             'title.required' => '请输入标题',
             'title.max' => '标题长度不要超过:max',
             'title.min' => '标题长度不要少于:min',
-            'navigation.required' => '请选择推送板块',
-            'navigation.array' => '推送板块不存在',
+            'navigation.required_without' => '请选择推送的导航栏目',
+            'navigation.array' => '选择的导航栏目不存在',
+            'module.required' => '请选择要推送的板块',
+            'module.array' => '板块格式不正确',
+            'section.required_without' => '请选择要推送的首页板块',
             'section.exists' => '您选择的首页板块不存在',
             'is_cus.required' => '请选择是否推送首页轮播头条',
             'is_cus.boolean' => '是否推送首页轮播头条格式错误',
@@ -198,36 +222,49 @@ class ContentsController extends BackendController
             'abst' => $request -> abst,
             'content' => $request -> cont,
         ];
-        $mIds = [];
-
-        if ($request -> has('section') && !is_null($request -> section)) {
-            $data['sec_id'] = $request -> section;
-            $mIds[] = $request -> section;
+        $mids= DB::table('modules')
+            -> select('id')
+            -> whereNull('deleted_at')
+            -> whereIn('id', $request -> module)
+            -> get();
+        if ($mids -> isEmpty()) {
+            return redirect() -> back() -> with('error', '您选择的板块已删除');
         }
+        $mIds = $mids -> pluck('id') -> toArray();
 
-        if ($request -> has('navigation') && !is_null($request -> navigation)) {
-            $nav_ids = DB::table('navigation')
-                -> select('m_id')
-                -> whereNull('deleted_at')
-                -> whereIn('m_id', $request -> navigation)
-                -> get();
-            if ($nav_ids -> isEmpty()) {
-                return redirect() -> back() -> with('error', '您选择的推送板块不存在或已被删除');
-            }
-            $nav_ids -> push(['m_id' => (int)$request -> section]);
-            $nav_ids = $nav_ids -> pluck('m_id') -> toArray();
-            $mIds = array_merge($mIds, $nav_ids);
-        }
+//        if ($request -> has('section') && !is_null($request -> section)) {
+//            $data['sec_id'] = $request -> section;
+//            $mIds[] = $request -> section;
+//        }
+//
+//        if ($request -> has('navigation') && !is_null($request -> navigation)) {
+//            $nav_ids = DB::table('navigation')
+//                -> select('m_id')
+//                -> whereNull('deleted_at')
+//                -> whereIn('m_id', $request -> navigation)
+//                -> get();
+//            if ($nav_ids -> isEmpty()) {
+//                return redirect() -> back() -> with('error', '您选择的推送板块不存在或已被删除');
+//            }
+//            $nav_ids -> push(['m_id' => (int)$request -> section]);
+//            $nav_ids = $nav_ids -> pluck('m_id') -> toArray();
+//            $mIds = array_merge($mIds, $nav_ids);
+//        }
 
         if ($request -> has('id')) {
-            $exists = DB::table('contents')
+            $content = DB::table('contents')
+                -> select('created_at')
                 -> where('id', $request -> id)
-                -> where('dep_id', Auth::user() -> dep_id)
+                -> where('publish_by', Auth::id())
                 -> whereNull('deleted_at')
                 -> exists();
-            if (!$exists) {
-                return redirect(route('backend.contents')) -> with('error', '该文章不存在或已被删除!');
+            if (is_null($content)) {
+                return redirect(route('backend.contents')) -> with('error', '该文章不存在或您没有编辑权限!');
             }
+            $hasNew = DB::table('contents')
+                -> whereNull('deleted_at')
+                -> where('created_at', '>=', date('Y-m-d 23:59:59', strtotime($content -> created_at)))
+                -> exists();
             DB::beginTransaction();
             try {
                 if ($mIds) {
@@ -237,7 +274,8 @@ class ContentsController extends BackendController
                         $m_ids[] = 'mid:' . $mid;
                         $module_ids[] = [
                             'm_id' => $mid,
-                            'c_id' => $request -> id
+                            'c_id' => $request -> id,
+                            'is_new' => $hasNew ? 0 : 1,
                         ];
                     }
                     $data['m_ids'] = json_encode($m_ids);
@@ -273,7 +311,16 @@ class ContentsController extends BackendController
                     }
                     DB::table('contents') -> where('id', $cid) -> update(['m_ids' => json_encode($m_ids)]);
                     DB::table('contents_modules') -> insert($module_ids);
+                    DB::table('contents_modules')
+                        -> whereIn('m_id', $mIds)
+                        -> whereNull('deleted_at')
+                        -> where('created_at', '<', date('Y-m-d 00:00:00'))
+                        -> update(['is_new' => 0]);
                 }
+                DB::table('contents')
+                    -> where('dep_id', Auth::user() -> dep_id)
+                    -> where('created_at', '<', date('Y-m-d 00:00:00'))
+                    -> update(['is_new' => 0]);
                 DB::commit();
                 return redirect(route('backend.contents')) -> with('success', '保存成功');
             } catch (\Exception $e) {

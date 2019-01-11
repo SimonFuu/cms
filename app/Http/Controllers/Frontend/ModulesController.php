@@ -62,7 +62,7 @@ class ModulesController extends FrontendController
         }
         $name = $module -> name;
         $contents = DB::table('contents_modules')
-            -> select('contents.id', 'contents.title', 'contents.created_at')
+            -> select('contents.id', 'contents.title', 'contents.created_at', 'contents_modules.is_new')
             -> leftJoin('contents', 'contents.id', '=', 'contents_modules.c_id')
             -> leftJoin('modules', 'modules.id', '=', 'contents_modules.m_id')
             -> where('modules.code', $module_code)
