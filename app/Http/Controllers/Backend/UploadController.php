@@ -37,7 +37,9 @@ class UploadController extends BackendController
                     }
                     break;
                 case 'upload_file':
-                    $res = $this -> saveFile($request, 'up_file', 'files', $request->file('up_file')->getClientOriginalExtension());
+                    $res = $this -> saveFile($request, 'up_file', 'files',
+                        $request->file('up_file')->getClientOriginalExtension(),
+                        $request -> file('up_file') -> getClientOriginalName());
                     if ($res) {
                         $res = json_encode([
                             'state' => 'SUCCESS',
@@ -83,42 +85,49 @@ class UploadController extends BackendController
             return $this -> response([], 500, config('msg.common.server.error'));
         }
     }
-    private function saveFile(Request $request, $filed = '', $type = 'images', $originalExtension = false)
+    private function saveFile(Request $request, $filed = '', $type = 'images', $originalExtension = false, $originalName = false)
     {
         $this -> createPath($type);
         if ($request->hasFile($filed)) {
             if ($request->file($filed)->isValid()){
-                switch ($filed) {
-                    case 'up_file':
-                        if ($type == 'files') {
+                if ($originalName === false) {
+                    switch ($filed) {
+                        case 'up_file':
+                            if ($type == 'files') {
+                                $fileName = uniqid('download_');
+                            } else {
+                                $fileName = uniqid('ue_upload_');
+                            }
+                            break;
+                        case 'thumbnail-container':
+                            $fileName = uniqid('thumbnail_');
+                            break;
+                        case 'resource-container':
+                            $fileName = uniqid('video_');
+                            break;
+                        case 'attachmentContainer':
+                            $fileName = uniqid('attachment_');
+                            break;
+                        case 'file':
+                            $fileName = uniqid('im_');
+                            break;
+                        case 'itemContainer':
                             $fileName = uniqid('download_');
-                        } else {
-                            $fileName = uniqid('ue_upload_');
-                        }
-                        break;
-                    case 'thumbnail-container':
-                        $fileName = uniqid('thumbnail_');
-                        break;
-                    case 'resource-container':
-                        $fileName = uniqid('video_');
-                        break;
-                    case 'attachmentContainer':
-                        $fileName = uniqid('attachment_');
-                        break;
-                    case 'file':
-                        $fileName = uniqid('im_');
-                        break;
-                    case 'itemContainer':
-                        $fileName = uniqid('download_');
-                        break;
-                    default:
-                        $fileName = uniqid();
-                        break;
+                            break;
+                        default:
+                            $fileName = uniqid();
+                            break;
+                    }
+                } else {
+                    $fileName = uniqid($originalName . '_');
                 }
                 $extension = $request->$filed->extension();
                 if ($originalExtension) {
-                    $file = $fileName . '.' . ($originalExtension == $extension ? $extension : $originalExtension);
+                    $extension = $originalExtension == $extension ? $extension : $originalExtension;
+                    $fileName = str_replace( '.' . $extension, '', $fileName);
+                    $file = $fileName . '.' . $extension;
                 } else {
+                    $fileName = str_replace( '.' . $extension, '', $fileName);
                     $file = $fileName . '.' . $extension;
                 }
                 $request->$filed->move($this -> storeAvatarPath, $file);
