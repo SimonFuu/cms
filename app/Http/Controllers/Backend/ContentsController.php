@@ -86,7 +86,20 @@ class ContentsController extends BackendController
                     $orderArr[] = 'convert(itls_users.name using gbk) desc';
                 }
                 $orderArr[] = 'itls_contents.created_at desc';
-            } else {
+            } else if (isset($request -> order['source'])) {
+                if ($request -> order['source'] == 'asc') {
+                    $this -> searchConditions['order']['source'] = 'asc';
+                    $this -> orderParam['order']['source'] = 'desc';
+                    $orderArr[] = 'convert(itls_contents.source using gbk) asc';
+                } elseif ($request -> order['source'] == 'desc') {
+                    $this -> searchConditions['order']['source'] = 'desc';
+                    $this -> orderParam['order']['source'] = 'asc';
+                    $orderArr[] = 'convert(itls_contents.source using gbk) desc';
+                }
+                $orderArr[] = 'itls_contents.created_at desc';
+            }
+
+            else {
                 $orderArr[] = 'itls_contents.created_at desc';
             }
         } else {

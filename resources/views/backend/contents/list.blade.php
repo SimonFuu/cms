@@ -31,7 +31,21 @@
                 <thead>
                 <tr>
                     <th width="300">标题</th>
-                    <th width="150">来源</th>
+                    <th width="150">
+                        @if(isset($orderParams['order']['source']))
+                            <a class="text-black contents-order-column" href="{{ route('backend.contents', $orderParams) }}">来源
+                                <i class="fa fa-sort-amount-{{ $orderParams['order']['source'] == 'asc' ? 'desc' : 'asc' }}"></i>
+                            </a>
+                        @else
+                            @php
+                                $params = $condition;
+                                unset($params['order']);
+                                $params['order']['source'] = 'desc';
+                            @endphp
+                            <a class="text-black contents-order-column" href="{{ route('backend.contents', $params) }}">来源
+                                <i class="fa fa-sort"></i>
+                            </a>
+                        @endif</th>
                     <th width="75">
                         @if(isset($orderParams['order']['pub']))
                             <a class="text-black contents-order-column" href="{{ route('backend.contents', $orderParams) }}">发布者
