@@ -204,6 +204,29 @@ var file_uploader = function () {
             $("#thumbnail").val('');
         });
     }
+
+    var itemContainer = $("#item-container");
+    if (itemContainer.length > 0) {
+        itemContainer.fileinput({
+            maxFileCount: 1,
+            language: "zh",
+            dropZoneTitle: "请选择需要上传的附件",
+            defaultPreviewContent: itemSrc === '' ? '' : '<a target="_blank" href="' + itemSrc + '">  <i class="fa fa-download"></i> 点击下载</a>',
+            uploadUrl: itemContainer.data('url'),
+        }).on('fileuploaded', function(event, file, previewId, index, reader) {
+            var response = file.response;
+            if (response.result) {
+                $("#item").val(response.data.url);
+                $("#size").val(response.data.size);
+            } else {
+                alert(response.message)
+            }
+        }).on('fileremoved', function (event, id, index) {
+            $("#item").val('');
+        });
+    }
+
+
 };
 
 var chunk = function (array, size) {

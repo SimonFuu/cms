@@ -12,6 +12,7 @@ namespace App\Http\Controllers\Backend;
 
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 
 class UploadController extends BackendController
 {
@@ -36,7 +37,7 @@ class UploadController extends BackendController
                     }
                     break;
                 case 'upload_file':
-                    $res = $this -> saveFile($request, 'up_file', 'attachments');
+                    $res = $this -> saveFile($request, 'up_file', 'files', $request->file('up_file')->getClientOriginalExtension());
                     if ($res) {
                         $res = json_encode([
                             'state' => 'SUCCESS',
@@ -89,7 +90,11 @@ class UploadController extends BackendController
             if ($request->file($filed)->isValid()){
                 switch ($filed) {
                     case 'up_file':
-                        $fileName = uniqid('ue_upload_');
+                        if ($type == 'files') {
+                            $fileName = uniqid('download_');
+                        } else {
+                            $fileName = uniqid('ue_upload_');
+                        }
                         break;
                     case 'thumbnail-container':
                         $fileName = uniqid('thumbnail_');
@@ -102,6 +107,9 @@ class UploadController extends BackendController
                         break;
                     case 'file':
                         $fileName = uniqid('im_');
+                        break;
+                    case 'itemContainer':
+                        $fileName = uniqid('download_');
                         break;
                     default:
                         $fileName = uniqid();
@@ -133,5 +141,45 @@ class UploadController extends BackendController
         if (!is_dir($this -> storeAvatarPath)) {
             mkdir($this -> storeAvatarPath, 0777, true);
         }
+    }
+
+    public function software(Request $request)
+    {
+        $res = $this -> saveFile($request, 'itemContainer', 'download', $request->file('itemContainer')->getClientOriginalExtension());
+        if ($res) {
+            return $this -> response(['url' => $res ,'size' => $this -> getReadableSize(File::size(public_path() . $res))]);
+        } else {
+            return $this -> response([], 500, config('msg.common.server.error'));
+        }
+    }
+
+    private function getReadableSize($size)
+    {
+        $KB = 1024;
+        $MB = 1024 * 1024;
+        $GB = 1024 * 1024 * 1024;
+        $TB = 1024 * 1024 * 1024;
+        $PB = 1024 * 1024 * 1024 * 1024;
+        switch ($size) {
+            case $size < $KB:
+                $sizeStr =  $size . 'bytes';
+                break;
+            case $size < $MB:
+                $sizeStr = number_format($size / $KB, 2) . 'KB';
+                break;
+            case $size < $GB:
+                $sizeStr = number_format($size / $MB, 2) . 'MB';
+                break;
+            case $size < $TB:
+                $sizeStr = number_format($size / $GB, 2) . 'GB';
+                break;
+            case $size < $PB:
+                $sizeStr = number_format($size / $TB, 2) . 'TB';
+                break;
+            default:
+                $sizeStr = number_format($size / $PB, 2) . 'PB';
+                break;
+        }
+        return $sizeStr;
     }
 }

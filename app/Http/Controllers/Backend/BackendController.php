@@ -32,6 +32,7 @@ class BackendController extends Controller
             str_replace(route('backend') . '/', '', route('backend.reset.password')),
             str_replace(route('backend') . '/', '', route('backend.upload.thumbnail')),
             str_replace(route('backend') . '/', '', route('backend.upload.ue')),
+            str_replace(route('backend') . '/', '', route('backend.upload.software')),
         ];
         $prefix = config('app.backend.prefix');
         $permissions = [];

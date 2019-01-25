@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\DB;
 
 class ContentsController extends BackendController
 {
+    private $orderParam = [];
+
     public function list(Request $request)
     {
         $db_modules = DB::table('modules')
@@ -36,15 +38,61 @@ class ContentsController extends BackendController
         foreach ($db_modules as $module) {
             $modules[$module -> id] = $module -> name;
         }
-//        $dep = DB::table('departments_modules')
-//            -> select('id')
-//            -> whereNull('deleted_at')
-//            -> where('dep_id', Auth::user() -> dep_id)
-//            -> get();
-////        $dep_ids = [];
-////        if ($dep -> isNotEmpty()) {
-////            $dep_ids = $dep -> pluck('id') -> toArray();
-////        }
+        $orderArr = [];
+        if ($request -> has('order')) {
+            if (isset($request -> order['ctime'])) {
+                if ($request -> order['ctime'] == 'asc') {
+                    $this -> searchConditions['order']['ctime'] = 'asc';
+                    $this -> orderParam['order']['ctime'] = 'desc';
+                    $orderArr[] = 'itls_contents.created_at asc';
+                } elseif ($request -> order['ctime'] == 'desc') {
+                    $this -> searchConditions['order']['ctime'] = 'desc';
+                    $this -> orderParam['order']['ctime'] = 'asc';
+                    $orderArr[] = 'itls_contents.created_at desc';
+                } else {
+                    $orderArr[] = 'itls_contents.created_at desc';
+                }
+            } else if (isset($request -> order['weight'])) {
+                if ($request -> order['weight'] == 'asc') {
+                    $this -> searchConditions['order']['weight'] = 'asc';
+                    $this -> orderParam['order']['weight'] = 'desc';
+                    $orderArr[] = 'itls_contents.weight asc';
+                } elseif ($request -> order['weight'] == 'desc') {
+                    $this -> searchConditions['order']['weight'] = 'desc';
+                    $this -> orderParam['order']['weight'] = 'asc';
+                    $orderArr[] = 'itls_contents.weight desc';
+                }
+                $orderArr[] = 'itls_contents.created_at desc';
+            } else if (isset($request -> order['dep'])) {
+                if ($request -> order['dep'] == 'asc') {
+                    $this -> searchConditions['order']['dep'] = 'asc';
+                    $this -> orderParam['order']['dep'] = 'desc';
+                    $orderArr[] = 'convert(itls_departments.name using gbk) asc';
+                } elseif ($request -> order['dep'] == 'desc') {
+                    $this -> searchConditions['order']['dep'] = 'desc';
+                    $this -> orderParam['order']['dep'] = 'asc';
+                    $orderArr[] = 'convert(itls_departments.name using gbk)  desc';
+                }
+                $orderArr[] = 'itls_contents.created_at desc';
+
+            } else if (isset($request -> order['pub'])) {
+                if ($request -> order['pub'] == 'asc') {
+                    $this -> searchConditions['order']['pub'] = 'asc';
+                    $this -> orderParam['order']['pub'] = 'desc';
+                    $orderArr[] = 'convert(itls_users.name using gbk) desc';
+                } elseif ($request -> order['pub'] == 'desc') {
+                    $this -> searchConditions['order']['pub'] = 'desc';
+                    $this -> orderParam['order']['pub'] = 'asc';
+                    $orderArr[] = 'convert(itls_users.name using gbk) desc';
+                }
+                $orderArr[] = 'itls_contents.created_at desc';
+            } else {
+                $orderArr[] = 'itls_contents.created_at desc';
+            }
+        } else {
+            $orderArr[] = 'itls_contents.created_at desc';
+        }
+        $orderStr = implode(', ', $orderArr);
         $contents = DB::table('contents')
             -> select('contents.id', 'contents.title', 'contents.source', 'contents.weight', 'users.name', 'contents.created_at', 'departments.name as dep_name')
             -> leftJoin('users', 'users.id', '=', 'contents.publish_by')
@@ -56,10 +104,12 @@ class ContentsController extends BackendController
                 if ($request -> has('title') && !is_null($request -> title)) {
                     $query -> where('contents.title', 'like', '%' . $request -> title . '%');
                     $this -> searchConditions['title'] = $request -> title;
+                    $this -> orderParam['title'] = $request -> title;
                 }
                 if ($request -> has('m_id') && !is_null($request -> m_id)) {
                     $query -> where('contents.m_ids', 'like', '%"mid:' . $request -> m_id . '"%');
                     $this -> searchConditions['m_id'] = $request -> m_id;
+                    $this -> orderParam['m_id'] = $request -> m_id;
                 }
             })
             -> where('contents.publish_by', Auth::id())
@@ -67,11 +117,17 @@ class ContentsController extends BackendController
 //                $query -> where('contents.dep_id', Auth::user() -> dep_id);
 //                $query -> orWhereIn('contents_modules.m_id', $dep_ids);
 //            })
-            -> orderBy('contents.weight', 'ASC')
-            -> orderBy('contents.created_at', 'DESC')
+//            -> orderBy('contents.weight', 'ASC')
+            -> orderByRaw($orderStr)
+//            -> orderBy('contents.created_at', 'DESC')
             -> groupBy('contents.id')
             -> paginate(self::PER_PAGE_RECORD_COUNT);
-        return view('backend.contents.list', ['modules' => $modules, 'contents' => $contents, 'condition' => $this -> searchConditions]);
+        return view('backend.contents.list', [
+            'modules' => $modules,
+            'contents' => $contents,
+            'condition' => $this -> searchConditions,
+            'orderParams' => $this -> orderParam,
+        ]);
     }
 
     public function form(Request $request)
@@ -257,14 +313,14 @@ class ContentsController extends BackendController
                 -> where('id', $request -> id)
                 -> where('publish_by', Auth::id())
                 -> whereNull('deleted_at')
-                -> exists();
+                -> first();
             if (is_null($content)) {
                 return redirect(route('backend.contents')) -> with('error', '该文章不存在或您没有编辑权限!');
             }
-            $hasNew = DB::table('contents')
-                -> whereNull('deleted_at')
-                -> where('created_at', '>=', date('Y-m-d 23:59:59', strtotime($content -> created_at)))
-                -> exists();
+//            $hasNew = DB::table('contents')
+//                -> whereNull('deleted_at')
+//                -> where('created_at', '>=', date('Y-m-d 23:59:59', strtotime($content -> created_at)))
+//                -> exists();
             DB::beginTransaction();
             try {
                 if ($mIds) {
@@ -275,7 +331,7 @@ class ContentsController extends BackendController
                         $module_ids[] = [
                             'm_id' => $mid,
                             'c_id' => $request -> id,
-                            'is_new' => $hasNew ? 0 : 1,
+//                            'is_new' => $hasNew ? 0 : 1,
                         ];
                     }
                     $data['m_ids'] = json_encode($m_ids);

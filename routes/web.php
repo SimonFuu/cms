@@ -14,6 +14,7 @@
 Route::group(['prefix' => '/', 'namespace' => 'Frontend'], function () {
     Route::get('/', 'IndexController@index') -> name('index');
     Route::get('/search', 'IndexController@search') -> name('index.search');
+    Route::get('/download.html', 'IndexController@download') -> name('index.download');
     Route::get('/{module}/list.html', 'ModulesController@list') -> name('module.list');
     Route::get('/{module}/show/{id}.html', 'ModulesController@show') -> name('module.detail');
     Route::get('/department/{department}/list.html', 'DepartmentsController@list') -> name('department.list');
@@ -38,6 +39,12 @@ Route::group(['prefix' => config('app.backend.prefix'), 'namespace' => 'Backend'
         Route::get('contents/edit', 'ContentsController@form') -> name('backend.contents.edit');
         Route::post('contents/store', 'ContentsController@store') -> name('backend.contents.store');
         Route::get('contents/delete', 'ContentsController@delete') -> name('backend.contents.delete');
+
+        Route::get('download', 'DownloadController@list') -> name('backend.download');
+        Route::get('download/add', 'DownloadController@form') -> name('backend.download.add');
+        Route::get('download/edit', 'DownloadController@form') -> name('backend.download.edit');
+        Route::post('download/store', 'DownloadController@store') -> name('backend.download.store');
+        Route::get('download/delete', 'DownloadController@delete') -> name('backend.download.delete');
 
         Route::get('index/sections', 'SectionsController@list') -> name('backend.sections');
         Route::post('index/sections/store', 'SectionsController@store') -> name('backend.sections.store');
@@ -94,5 +101,6 @@ Route::group(['prefix' => config('app.backend.prefix'), 'namespace' => 'Backend'
 
         Route::any('upload/ue', 'UploadController@ueUpload') -> name('backend.upload.ue');
         Route::post('upload/thumbnail', 'UploadController@thumbnail') -> name('backend.upload.thumbnail');
+        Route::post('upload/software', 'UploadController@software') -> name('backend.upload.software');
     });
 });

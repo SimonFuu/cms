@@ -92,12 +92,14 @@
                                         @foreach($contents[$left -> id] as $content)
                                             <li>
                                                 <span class="left-section-content-title">
-                                                    @if($left -> id == 2)
-                                                        <a style="position: relative;top: -7px;" href="{{ route('department.list', ['department' => $content -> code]) }}">{{ $content -> dep }}</a>
-                                                    @endif
-                                                    <a href="{{ route('module.detail', ['module' => $left -> code, 'id' => $content -> id]) }}" class="post-title text-black">
-                                                        {{ $content -> title }}
-                                                    </a>
+                                                    <span class="post-title">
+                                                        @if($left -> id == 2)
+                                                            <a href="{{ route('department.list', ['department' => $content -> code]) }}">{{ $content -> dep }}</a>
+                                                        @endif
+                                                        <a href="{{ route('module.detail', ['module' => $left -> code, 'id' => $content -> id]) }}" class=" text-black">
+                                                            {{ $content -> title }}
+                                                        </a>
+                                                    </span>
                                                     @if($content -> is_new)
                                                         <img src="/images/site/new.gif" alt="New Icon" style="position:relative; top: -9px;">
                                                     @endif

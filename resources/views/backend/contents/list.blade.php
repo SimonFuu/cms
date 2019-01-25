@@ -26,16 +26,99 @@
                 {!! Form::close() !!}
                 <hr>
             </div>
+{{--            {{ dd($orderParams) }}--}}
             <table class="table table-hover contents-list text-center">
                 <thead>
                 <tr>
                     <th width="300">标题</th>
                     <th width="150">来源</th>
-                    {{--<th width="150">板块</th>--}}
-                    <th width="75">展示权重</th>
-                    <th width="75">发布者</th>
-                    <th width="75">部门</th>
-                    <th width="150">发布时间</th>
+                    <th width="75">
+                        @if(isset($orderParams['order']['pub']))
+                            <a class="text-black contents-order-column" href="{{ route('backend.contents', $orderParams) }}">发布者
+                                <i class="fa fa-sort-amount-{{ $orderParams['order']['pub'] == 'asc' ? 'desc' : 'asc' }}"></i>
+                            </a>
+                        @else
+                            @php
+                                $params = $condition;
+                                unset($params['order']);
+                                $params['order']['pub'] = 'desc';
+                            @endphp
+                            <a class="text-black contents-order-column" href="{{ route('backend.contents', $params) }}">发布者
+                                <i class="fa fa-sort"></i>
+                            </a>
+                        @endif
+                    </th>
+                    <th width="75">
+                        @if(isset($orderParams['order']['dep']))
+                            <a class="text-black contents-order-column" href="{{ route('backend.contents', $orderParams) }}">部门
+                                <i class="fa fa-sort-amount-{{ $orderParams['order']['dep'] == 'asc' ? 'desc' : 'asc' }}"></i>
+                            </a>
+                        @else
+                            @php
+                                $params = $condition;
+                                unset($params['order']);
+                                $params['order']['dep'] = 'desc';
+                            @endphp
+                            <a class="text-black contents-order-column" href="{{ route('backend.contents', $params) }}">部门
+                                <i class="fa fa-sort"></i>
+                            </a>
+                        @endif
+
+                        {{--<a class="text-black contents-order-column" data-type="dep" href="">部门--}}
+                            {{--@if(isset($condition['order]']['dep']))--}}
+                                {{--<i class="fa fa-sort-amount-{{ $condition['order]']['pub'] }}"></i>--}}
+                            {{--@else--}}
+                                {{--<i class="fa fa-sort"></i>--}}
+                            {{--@endif--}}
+                        {{--</a>--}}
+                    </th>
+                    <th width="75">
+                        @if(isset($orderParams['order']['weight']))
+                            <a class="text-black contents-order-column" href="{{ route('backend.contents', $orderParams) }}">展示权重
+                                <i class="fa fa-sort-amount-{{ $orderParams['order']['weight'] == 'asc' ? 'desc' : 'asc' }}"></i>
+                            </a>
+                        @else
+                            @php
+                                $params = $condition;
+                                unset($params['order']);
+                                $params['order']['weight'] = 'desc';
+                            @endphp
+                            <a class="text-black contents-order-column" href="{{ route('backend.contents', $params) }}">展示权重
+                                <i class="fa fa-sort"></i>
+                            </a>
+                        @endif
+                        {{--<a class="text-black contents-order-column" data-type="weight" href="">展示权重--}}
+                            {{--@if(isset($condition['order]']['weight']))--}}
+                                {{--<i class="fa fa-sort-amount-{{ $condition['order]']['pub'] }}"></i>--}}
+                            {{--@else--}}
+                                {{--<i class="fa fa-sort"></i>--}}
+                            {{--@endif--}}
+                        {{--</a>--}}
+                    </th>
+                    <th width="150">
+                        @if(isset($orderParams['order']['ctime']))
+                            <a class="text-black contents-order-column" href="{{ route('backend.contents', $orderParams) }}">创建时间
+                                <i class="fa fa-sort-amount-{{ $orderParams['order']['ctime'] == 'asc' ? 'desc' : 'asc' }}"></i>
+                            </a>
+                        @else
+                            @php
+                                $params = $condition;
+                                unset($params['order']);
+                                $params['order']['ctime'] = 'desc';
+                            @endphp
+                            <a class="text-black contents-order-column" href="{{ route('backend.contents', $params) }}">创建时间
+                                <i class="fa fa-sort"></i>
+                            </a>
+                        @endif
+
+                        {{--<a class="text-black contents-order-column" data-type="ctime" href="">发布时间--}}
+                            {{--@if(isset($condition['order]']['ctime']))--}}
+                                {{--<i class="fa fa-sort-amount-{{ $condition['order]']['pub'] }}"></i>--}}
+                            {{--@else--}}
+                                {{--<i class="fa fa-sort"></i>--}}
+                            {{--@endif--}}
+                        {{--</a>--}}
+                    </th>
                     <th width="100">操作</th>
                 </tr>
                 </thead>
@@ -44,10 +127,9 @@
                     <tr class="contents-list-trs">
                         <td>{{ $content -> title }}</td>
                         <td>{{ $content -> source }}</td>
-                        {{--<td></td>--}}
-                        <td>{{ $content -> weight }}</td>
                         <td>{{ $content -> name }}</td>
                         <td>{{ $content -> dep_name }}</td>
+                        <td>{{ $content -> weight }}</td>
                         <td>{{ $content -> created_at }}</td>
                         <td>
                             <a class="btn btn-xs btn-primary" href="{{ route('backend.contents.edit', ['id' => $content -> id]) }}">编辑</a>

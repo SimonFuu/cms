@@ -177,4 +177,15 @@ class IndexController extends FrontendController
             return redirect(route('module.list', ['module' => config('app.top_news.code')]));
         }
     }
+
+    public function download()
+    {
+        $items = DB::table('download')
+            -> select('name', 'desc', 'src', 'created_at', 'size')
+            -> whereNull('deleted_at')
+            -> orderBy('weight', 'asc')
+            -> orderBy('created_at', 'desc')
+            -> get();
+        return view('frontend.default.download.list', ['items' => $items]);
+    }
 }
