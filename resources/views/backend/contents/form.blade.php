@@ -35,12 +35,12 @@
                     <div class="col-sm-8">
                         {!! Form::select('module[]', $modules,null, [
                             'class' => 'form-control select2',
-                            'multiple'=> 'multiple',
                             'data-placeholder'=> '请选择要推送的板块',
                             'style' => 'width:100%',
                             'placeholder' => '请选择要推送的板块',
                             'data-default' => json_encode($default),
                         ]) !!}
+                        {{--'multiple'=> 'multiple',--}}
                         @if($errors -> has('module'))
                             <span class="help-block form-help-block"><strong>{{ $errors -> first('module') }}</strong></span>
                         @endif
