@@ -221,3 +221,7 @@ body {
 .ue-container > .edui1 {
     z-index: 9999;
 }
+
+.departments-published-data {
+    padding: 20px;
+}

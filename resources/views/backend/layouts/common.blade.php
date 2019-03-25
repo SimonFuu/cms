@@ -15,6 +15,7 @@
     <link href="/backend/plugins/select2/dist/css/select2.min.css" rel="stylesheet" type="text/css">
     <link href="/backend/plugins/bootstrap-fileinput-4.4.2/css/fileinput.css" rel="stylesheet" type="text/css">
     <link href="/backend/plugins/Ionicons/css/ionicons.min.css" rel="stylesheet" type="text/css">
+    <link href="/backend/plugins/datatables.net-bs/css/dataTables.bootstrap.css" rel="stylesheet" type="text/css">
     <link href="/backend/css/style.css?v={{ config('app.versions.statics') }}" rel="stylesheet" type="text/css">
 </head>
 <body class="hold-transition skin-red sidebar-mini">
@@ -33,6 +34,8 @@
 <script language="JavaScript" src="/backend/plugins/bootstrap-fileinput-4.4.2/js/fileinput.js"></script>
 <script language="JavaScript" src="/backend/plugins/bootstrap-fileinput-4.4.2/js/plugins/sortable.js"></script>
 <script language="JavaScript" src="/backend/plugins/bootstrap-fileinput-4.4.2/js/locales/zh.js"></script>
+<script language="JavaScript" src="/backend/plugins/datatables.net/js/jquery.dataTables.js"></script>
+<script language="JavaScript" src="/backend/plugins/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 <script language="JavaScript" src="/backend/js/app.js?v={{ config('app.versions.statics') }}"></script>
 </body>
 </html>

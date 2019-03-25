@@ -23,7 +23,99 @@ class BackendController extends Controller
 
     public function index()
     {
-        return view('backend.index');
+        $season = ceil(date('n') / 3);
+        $start = [
+            'today' => strtotime(date('Y-m-d 00:00:00')),
+            'week' => strtotime('this Monday'),
+            'month' => strtotime(date('Y-m-01 00:00:00')),
+            'season' => mktime(0, 0, 0,$season*3-3+1,1,date('Y')),
+            'year' => strtotime(date('Y-01-01 00:00:00')),
+            'all' => 0,
+        ];
+        $end = [
+            'today' => strtotime(date('Y-m-d 23:59:59')),
+            'week' => strtotime('this Sunday'),
+            'month' => strtotime(date('Y-m-t 00:00:00')),
+            'season' => mktime(23,59,59,$season*3,date('t',mktime(0, 0 , 0,$season*3,1,date("Y"))),date('Y')),
+            'year' => strtotime(date('Y-12-31 23:59:59')),
+            'all' => 9999999999,
+        ];
+        $departments = DB::table('departments')
+            -> select('id', 'name', DB::raw('"0" as amount'))
+            -> whereNull('deleted_at')
+            -> where('id', '>', '1')
+            -> orderBy('weight', 'ASC')
+            -> get();
+        $deps = [];
+        foreach ($departments as $key => $value) {
+            $deps[$value -> id] = [
+                'name' => $value -> name,
+                'amount' => (int)$value -> amount,
+            ];
+        }
+        $data['today'] = $data['week'] = $data['month'] = $data['season'] = $data['year'] = $data['all'] = [
+            'amount' => 0,
+            'departments' => $deps
+        ];
+        $contents = DB::table('contents')
+            -> select(DB::raw('UNIX_TIMESTAMP(created_at) as created_at'), 'dep_id')
+            -> whereNull('deleted_at')
+            -> get();
+        if ($contents -> isNotEmpty()) {
+            foreach ($contents as $key => $value) {
+                $time = $value -> created_at;
+                if ($time >= $start['today'] && $time <= $end['today']) {
+                    $data['today']['amount'] += 1;
+                    $data['week']['amount'] += 1;
+                    $data['month']['amount'] += 1;
+                    $data['season']['amount'] += 1;
+                    $data['year']['amount'] += 1;
+                    $data['all']['amount'] += 1;
+                    $data['today']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['week']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['month']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['season']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['year']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['all']['departments'][$value -> dep_id]['amount'] += 1;
+                } elseif ($time >= $start['week'] && $time <= $end['week']) {
+                    $data['week']['amount'] += 1;
+                    $data['month']['amount'] += 1;
+                    $data['season']['amount'] += 1;
+                    $data['year']['amount'] += 1;
+                    $data['all']['amount'] += 1;
+                    $data['week']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['month']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['season']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['year']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['all']['departments'][$value -> dep_id]['amount'] += 1;
+                } elseif ($time >= $start['month'] && $time <= $end['month']) {
+                    $data['month']['amount'] += 1;
+                    $data['season']['amount'] += 1;
+                    $data['year']['amount'] += 1;
+                    $data['all']['amount'] += 1;
+                    $data['month']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['season']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['year']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['all']['departments'][$value -> dep_id]['amount'] += 1;
+                } elseif ($time >= $start['season'] && $time <= $end['season']) {
+                    $data['season']['amount'] += 1;
+                    $data['year']['amount'] += 1;
+                    $data['all']['amount'] += 1;
+                    $data['season']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['year']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['all']['departments'][$value -> dep_id]['amount'] += 1;
+                } elseif ($time >= $start['year'] && $time <= $end['year']) {
+                    $data['year']['amount'] += 1;
+                    $data['all']['amount'] += 1;
+                    $data['year']['departments'][$value -> dep_id]['amount'] += 1;
+                    $data['all']['departments'][$value -> dep_id]['amount'] += 1;
+                } else {
+                    $data['all']['amount'] += 1;
+                    $data['all']['departments'][$value -> dep_id]['amount'] += 1;
+                }
+            }
+        }
+        return view('backend.index', ['data' => $data]);
     }
 
     public function getRoleActionsInfo($roleId = 0)
