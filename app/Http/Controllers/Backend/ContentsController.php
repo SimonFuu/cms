@@ -25,10 +25,19 @@ class ContentsController extends BackendController
         $db_modules = DB::table('modules')
             -> select('modules.id', 'modules.name')
             -> leftJoin('departments_modules', 'departments_modules.mid', '=', 'modules.id')
-            -> where('departments_modules.dep_id', Auth::user() -> dep_id)
-            -> whereNull('modules.deleted_at')
-            -> whereNull('departments_modules.deleted_at')
-            -> where('modules.type', '<>', self::LINKS_MODULE_TYPE)
+            -> where(function ($query) {
+                $isAdmin = DB::table('roles_users')
+                    -> whereNull('deleted_at')
+                    -> where('uid', Auth::id())
+                    -> where('rid', 1)
+                    -> exists();
+                if (!$isAdmin) {
+                    $query -> where('departments_modules.dep_id', Auth::user() -> dep_id);
+                }
+                $query -> whereNull('modules.deleted_at');
+                $query -> whereNull('departments_modules.deleted_at');
+                $query -> where('modules.type', '<>', self::LINKS_MODULE_TYPE);
+            })
             -> orderBy('modules.weight', 'ASC')
             -> get();
         if ($db_modules -> isEmpty()) {
@@ -111,8 +120,18 @@ class ContentsController extends BackendController
             -> leftJoin('users', 'users.id', '=', 'contents.publish_by')
             -> leftJoin('departments', 'departments.id', '=', 'contents.dep_id')
             -> leftJoin('contents_modules', 'contents_modules.c_id', '=', 'contents.id')
-            -> whereNull('contents.deleted_at')
-            -> whereNull('contents_modules.deleted_at')
+            -> where(function ($query) {
+                $isAdmin = DB::table('roles_users')
+                    -> whereNull('deleted_at')
+                    -> where('uid', Auth::id())
+                    -> where('rid', 1)
+                    -> exists();
+                if (!$isAdmin) {
+                    $query -> where('contents.publish_by', Auth::id());
+                }
+                $query -> whereNull('contents.deleted_at');
+                $query -> whereNull('contents_modules.deleted_at');
+            })
             -> where(function ($query) use ($request) {
                 if ($request -> has('title') && !is_null($request -> title)) {
                     $query -> where('contents.title', 'like', '%' . $request -> title . '%');
@@ -125,7 +144,6 @@ class ContentsController extends BackendController
                     $this -> orderParam['m_id'] = $request -> m_id;
                 }
             })
-            -> where('contents.publish_by', Auth::id())
 //            -> where(function ($query) use ($dep_ids) {
 //                $query -> where('contents.dep_id', Auth::user() -> dep_id);
 //                $query -> orWhereIn('contents_modules.m_id', $dep_ids);
@@ -214,8 +232,17 @@ class ContentsController extends BackendController
         if ($request -> has('id')) {
             $content = DB::table('contents')
                 -> select('id', 'title', 'is_top', 'is_cus', 'weight', 'content', 'thumb', 'abst', 'sec_id', 'source')
-                -> whereNull('deleted_at')
-                -> where('publish_by', Auth::id())
+                -> where(function ($query) {
+                    $isAdmin = DB::table('roles_users')
+                        -> whereNull('deleted_at')
+                        -> where('uid', Auth::id())
+                        -> where('rid', 1)
+                        -> exists();
+                    if (!$isAdmin) {
+                        $query -> where('publish_by', Auth::id());
+                    }
+                    $query -> whereNull('deleted_at');
+                })
                 -> where('id', $request -> id)
                 -> first();
             if (is_null($content)) {
@@ -323,8 +350,17 @@ class ContentsController extends BackendController
         if ($request -> has('id')) {
             $content = DB::table('contents')
                 -> select('created_at')
-                -> where('id', $request -> id)
-                -> where('publish_by', Auth::id())
+                -> where(function ($query) use ($request) {
+                    $isAdmin = DB::table('roles_users')
+                        -> whereNull('deleted_at')
+                        -> where('uid', Auth::id())
+                        -> where('rid', 1)
+                        -> exists();
+                    if (!$isAdmin) {
+                        $query -> where('publish_by', Auth::id());
+                    }
+                    $query -> where('id', $request -> id);
+                })
                 -> whereNull('deleted_at')
                 -> first();
             if (is_null($content)) {

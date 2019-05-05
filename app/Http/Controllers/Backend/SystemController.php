@@ -249,6 +249,7 @@ class SystemController extends BackendController
                     return redirect(route('backend.system.departments')) -> with('error', '修改失败，该部门的下级部门或自己不能作为"上级部门"！');
                 } else {
                     $data = [
+                        'name' => $request -> name,
                         'desc' => $request -> desc,
                         'parent_id' => $request -> parent_id,
                         'weight' => $request -> weight,

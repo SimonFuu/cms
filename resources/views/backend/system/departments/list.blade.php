@@ -25,7 +25,7 @@
                             <div class="form-group {{ $errors -> has('name') ? 'has-error' : '' }}">
                                 {!! Form::label('name', '名称 * ：', ['class' => 'control-label col-md-4']) !!}
                                 <div class="col-md-8">
-                                    {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => '请输入名称', 'readonly']) !!}
+                                    {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => '请输入名称']) !!}
                                     @if($errors -> has('name'))
                                         <span class="help-block">
                                             <strong>{{ $errors -> first('name') }}</strong>
