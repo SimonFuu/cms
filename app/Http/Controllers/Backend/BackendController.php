@@ -26,7 +26,7 @@ class BackendController extends Controller
         $season = ceil(date('n') / 3);
         $start = [
             'today' => strtotime(date('Y-m-d 00:00:00')),
-            'week' => strtotime('this Monday'),
+            'week' => strtotime('last Sunday') + 86400,
             'month' => strtotime(date('Y-m-01 00:00:00')),
             'season' => mktime(0, 0, 0,$season*3-3+1,1,date('Y')),
             'year' => strtotime(date('Y-01-01 00:00:00')),
@@ -34,8 +34,8 @@ class BackendController extends Controller
         ];
         $end = [
             'today' => strtotime(date('Y-m-d 23:59:59')),
-            'week' => strtotime('this Sunday'),
-            'month' => strtotime(date('Y-m-t 00:00:00')),
+            'week' => strtotime('next Monday') - 1,
+            'month' => strtotime(date('Y-m-t 23:59:59')),
             'season' => mktime(23,59,59,$season*3,date('t',mktime(0, 0 , 0,$season*3,1,date("Y"))),date('Y')),
             'year' => strtotime(date('Y-12-31 23:59:59')),
             'all' => 9999999999,
